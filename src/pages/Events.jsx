@@ -1,49 +1,49 @@
 import { useState, useEffect } from 'react';
-import ApiService from '../services/apiServices.jsx';
+import ServicioApi from '../services/apiServices.jsx';
 import EventCard from '../components/EventCard.jsx';
 import LoadingSpinner from '../components/LoadingSpinner.jsx';
 import '../styles/Events.css';
 
 const Events = () => {
-    const [events, setEvents] = useState([]);
-    const [loading, setLoading] = useState(true);
+    const [eventos, setEventos] = useState([]);
+    const [cargando, setCargando] = useState(true);
     const [error, setError] = useState(null);
-    const [searchTerm, setSearchTerm] = useState('');
-    const [filteredEvents, setFilteredEvents] = useState([]);
+    const [terminoBusqueda, setTerminoBusqueda] = useState('');
+    const [eventosFiltrados, setEventosFiltrados] = useState([]);
 
     useEffect(() => {
-        const fetchEvents = async () => {
+        const obtenerEventos = async () => {
             try {
-                setLoading(true);
-                const eventsData = await ApiService.getEvents();
-                setEvents(eventsData);
-                setFilteredEvents(eventsData);
+                setCargando(true);
+                const datosEventos = await ServicioApi.obtenerEventos();
+                setEventos(datosEventos);
+                setEventosFiltrados(datosEventos);
             } catch (err) {
                 setError('Error al cargar los eventos');
-                console.error('Error fetching events:', err);
+                console.error('Error obteniendo eventos:', err);
             } finally {
-                setLoading(false);
+                setCargando(false);
             }
         };
 
-        fetchEvents();
+        obtenerEventos();
     }, []);
 
     useEffect(() => {
-        const filtered = events.filter(event =>
-            event.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            event.description?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            event.event_category?.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            event.event_location?.name?.toLowerCase().includes(searchTerm.toLowerCase())
+        const filtrados = eventos.filter(evento =>
+            evento.name.toLowerCase().includes(terminoBusqueda.toLowerCase()) ||
+            evento.description?.toLowerCase().includes(terminoBusqueda.toLowerCase()) ||
+            evento.event_category?.name?.toLowerCase().includes(terminoBusqueda.toLowerCase()) ||
+            evento.event_location?.name?.toLowerCase().includes(terminoBusqueda.toLowerCase())
         );
-        setFilteredEvents(filtered);
-    }, [searchTerm, events]);
+        setEventosFiltrados(filtrados);
+    }, [terminoBusqueda, eventos]);
 
-    const handleSearch = (e) => {
-        setSearchTerm(e.target.value);
+    const manejarBusqueda = (e) => {
+        setTerminoBusqueda(e.target.value);
     };
 
-    if (loading) {
+    if (cargando) {
         return (
             <div className="events-page">
                 <div className="container">
@@ -85,8 +85,8 @@ const Events = () => {
                         <input
                             type="text"
                             placeholder="Buscar eventos..."
-                            value={searchTerm}
-                            onChange={handleSearch}
+                            value={terminoBusqueda}
+                            onChange={manejarBusqueda}
                             className="search-input"
                         />
                         <span className="search-icon">🔍</span>
@@ -96,24 +96,24 @@ const Events = () => {
                 <div className="events-results">
                     <div className="results-info">
                         <span className="results-count">
-                            {filteredEvents.length} evento{filteredEvents.length !== 1 ? 's' : ''} encontrado{filteredEvents.length !== 1 ? 's' : ''}
+                            {eventosFiltrados.length} evento{eventosFiltrados.length !== 1 ? 's' : ''} encontrado{eventosFiltrados.length !== 1 ? 's' : ''}
                         </span>
                     </div>
 
-                    {filteredEvents.length > 0 ? (
+                    {eventosFiltrados.length > 0 ? (
                         <div className="events-grid">
-                            {filteredEvents.map(event => (
-                                <EventCard key={event.id} event={event} />
+                            {eventosFiltrados.map(evento => (
+                                <EventCard key={evento.id} event={evento} />
                             ))}
                         </div>
                     ) : (
                         <div className="no-events-found">
-                            {searchTerm ? (
+                            {terminoBusqueda ? (
                                 <>
                                     <h3>No se encontraron eventos</h3>
-                                    <p>No hay eventos que coincidan con "{searchTerm}"</p>
+                                    <p>No hay eventos que coincidan con "{terminoBusqueda}"</p>
                                     <button
-                                        onClick={() => setSearchTerm('')}
+                                        onClick={() => setTerminoBusqueda('')}
                                         className="btn btn-secondary"
                                     >
                                         Limpiar búsqueda

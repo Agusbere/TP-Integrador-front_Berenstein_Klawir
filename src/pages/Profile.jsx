@@ -1,63 +1,63 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../hooks/useAuth.jsx';
-import ApiService from '../services/apiServices.jsx';
+import ServicioApi from '../services/apiServices.jsx';
 import LoadingSpinner from '../components/LoadingSpinner.jsx';
 import '../styles/Profile.css';
 
-const Profile = () => {
-    const { user, logout } = useAuth();
-    const [formData, setFormData] = useState({
+const Perfil = () => {
+    const { usuario, cerrarSesion } = useAuth();
+    const [datosFormulario, setDatosFormulario] = useState({
         first_name: '',
         last_name: '',
         username: ''
     });
-    const [loading, setLoading] = useState(false);
+    const [cargando, setCargando] = useState(false);
     const [error, setError] = useState('');
-    const [success, setSuccess] = useState('');
-    const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+    const [exito, setExito] = useState('');
+    const [mostrarConfirmacionEliminar, setMostrarConfirmacionEliminar] = useState(false);
 
     useEffect(() => {
-        if (user) {
-            setFormData({
-                first_name: user.first_name || '',
-                last_name: user.last_name || '',
-                username: user.username || ''
+        if (usuario) {
+            setDatosFormulario({
+                first_name: usuario.first_name || '',
+                last_name: usuario.last_name || '',
+                username: usuario.username || ''
             });
         }
-    }, [user]);
+    }, [usuario]);
 
-    const handleChange = (e) => {
-        setFormData({
-            ...formData,
+    const manejarCambio = (e) => {
+        setDatosFormulario({
+            ...datosFormulario,
             [e.target.name]: e.target.value
         });
         setError('');
-        setSuccess('');
+        setExito('');
     };
 
-    const handleSubmit = async (e) => {
+    const manejarEnvio = async (e) => {
         e.preventDefault();
-        setLoading(true);
+        setCargando(true);
         setError('');
-        setSuccess('');
+        setExito('');
 
         try {
-            await ApiService.updateUserProfile(formData);
-            setSuccess('Perfil actualizado exitosamente');
+            await ServicioApi.actualizarPerfilUsuario(datosFormulario);
+            setExito('Perfil actualizado exitosamente');
         } catch (err) {
             setError(err.message || 'Error al actualizar el perfil');
         } finally {
-            setLoading(false);
+            setCargando(false);
         }
     };
 
-    const handleDeleteAccount = async () => {
+    const manejarEliminarCuenta = async () => {
         try {
-            await ApiService.deleteUserProfile();
-            logout();
+            await ServicioApi.eliminarPerfilUsuario();
+            cerrarSesion();
         } catch (err) {
             setError(err.message || 'Error al eliminar la cuenta');
-            setShowDeleteConfirm(false);
+            setMostrarConfirmacionEliminar(false);
         }
     };
 
@@ -73,22 +73,22 @@ const Profile = () => {
                     <div className="profile-card">
                         <div className="profile-avatar-section">
                             <div className="profile-avatar">
-                                {user?.first_name?.charAt(0)?.toUpperCase() || 'U'}
+                                {usuario?.first_name?.charAt(0)?.toUpperCase() || 'U'}
                             </div>
-                            <h2>{user?.first_name} {user?.last_name}</h2>
-                            <p className="profile-username">@{user?.username}</p>
+                            <h2>{usuario?.first_name} {usuario?.last_name}</h2>
+                            <p className="profile-username">@{usuario?.username}</p>
                         </div>
 
-                        <form onSubmit={handleSubmit} className="profile-form">
+                        <form onSubmit={manejarEnvio} className="profile-form">
                             {error && (
                                 <div className="alert alert-error">
                                     {error}
                                 </div>
                             )}
 
-                            {success && (
+                            {exito && (
                                 <div className="alert alert-success">
-                                    {success}
+                                    {exito}
                                 </div>
                             )}
 
@@ -99,8 +99,8 @@ const Profile = () => {
                                         type="text"
                                         id="first_name"
                                         name="first_name"
-                                        value={formData.first_name}
-                                        onChange={handleChange}
+                                        value={datosFormulario.first_name}
+                                        onChange={manejarCambio}
                                         required
                                         className="form-input"
                                         placeholder="Tu nombre"
@@ -113,8 +113,8 @@ const Profile = () => {
                                         type="text"
                                         id="last_name"
                                         name="last_name"
-                                        value={formData.last_name}
-                                        onChange={handleChange}
+                                        value={datosFormulario.last_name}
+                                        onChange={manejarCambio}
                                         required
                                         className="form-input"
                                         placeholder="Tu apellido"
@@ -128,8 +128,8 @@ const Profile = () => {
                                     type="text"
                                     id="username"
                                     name="username"
-                                    value={formData.username}
-                                    onChange={handleChange}
+                                    value={datosFormulario.username}
+                                    onChange={manejarCambio}
                                     required
                                     className="form-input"
                                     placeholder="Tu nombre de usuario"
@@ -139,10 +139,10 @@ const Profile = () => {
                             <div className="form-actions">
                                 <button
                                     type="submit"
-                                    disabled={loading}
+                                    disabled={cargando}
                                     className="btn btn-primary"
                                 >
-                                    {loading ? <LoadingSpinner size="small" text="" /> : 'Guardar Cambios'}
+                                    {cargando ? <LoadingSpinner size="small" text="" /> : 'Guardar Cambios'}
                                 </button>
                             </div>
                         </form>
@@ -170,9 +170,9 @@ const Profile = () => {
                         <h3>Zona de Peligro</h3>
                         <p>Esta acción no se puede deshacer. Todos tus datos serán eliminados permanentemente.</p>
                         
-                        {!showDeleteConfirm ? (
+                        {!mostrarConfirmacionEliminar ? (
                             <button
-                                onClick={() => setShowDeleteConfirm(true)}
+                                onClick={() => setMostrarConfirmacionEliminar(true)}
                                 className="btn btn-danger"
                             >
                                 Eliminar Cuenta
@@ -182,13 +182,13 @@ const Profile = () => {
                                 <p><strong>¿Estás seguro que quieres eliminar tu cuenta?</strong></p>
                                 <div className="confirm-actions">
                                     <button
-                                        onClick={() => setShowDeleteConfirm(false)}
+                                        onClick={() => setMostrarConfirmacionEliminar(false)}
                                         className="btn btn-secondary"
                                     >
                                         Cancelar
                                     </button>
                                     <button
-                                        onClick={handleDeleteAccount}
+                                        onClick={manejarEliminarCuenta}
                                         className="btn btn-danger"
                                     >
                                         Sí, eliminar mi cuenta
@@ -203,4 +203,4 @@ const Profile = () => {
     );
 };
 
-export default Profile;
+export default Perfil;

@@ -1,5 +1,5 @@
 import { useState, useEffect, useContext, createContext } from 'react';
-import ApiService from '../services/apiServices.jsx';
+import ServicioApi from '../services/apiServices.jsx';
 
 const AuthContext = createContext();
 
@@ -10,7 +10,7 @@ export const AuthProvider = ({ children }) => {
 
     useEffect(() => {
         if (token) {
-            ApiService.getUserProfile()
+            ServicioApi.obtenerPerfilUsuario()
                 .then(userData => {
                     setUser(userData);
                 })
@@ -28,7 +28,7 @@ export const AuthProvider = ({ children }) => {
 
     const login = async (credentials) => {
         try {
-            const response = await ApiService.login(credentials);
+            const response = await ServicioApi.iniciarSesion(credentials);
             const { token: newToken, user: userData } = response;
 
             localStorage.setItem('token', newToken);
@@ -37,16 +37,20 @@ export const AuthProvider = ({ children }) => {
 
             return response;
         } catch (error) {
-            throw error;
+            // No mostrar errores técnicos al usuario
+            console.error('Error en login:', error);
+            throw new Error('Error al iniciar sesión. Verifica tus credenciales.');
         }
     };
 
     const register = async (userData) => {
         try {
-            const response = await ApiService.register(userData);
+            const response = await ServicioApi.registrarse(userData);
             return response;
         } catch (error) {
-            throw error;
+            // No mostrar errores técnicos al usuario
+            console.error('Error en registro:', error);
+            throw new Error('Error al crear la cuenta. Por favor, intenta nuevamente.');
         }
     };
 

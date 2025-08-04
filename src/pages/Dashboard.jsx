@@ -1,39 +1,39 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import ApiService from '../services/apiServices.jsx';
+import ServicioApi from '../services/apiServices.jsx';
 import { useAuth } from '../hooks/useAuth.jsx';
 import EventCard from '../components/EventCard.jsx';
 import LoadingSpinner from '../components/LoadingSpinner.jsx';
 import '../styles/Dashboard.css';
 
 const Dashboard = () => {
-    const { user } = useAuth();
-    const [userEvents, setUserEvents] = useState([]);
-    const [allEvents, setAllEvents] = useState([]);
-    const [loading, setLoading] = useState(true);
+    const { usuario } = useAuth();
+    const [eventosUsuario, setEventosUsuario] = useState([]);
+    const [todosLosEventos, setTodosLosEventos] = useState([]);
+    const [cargando, setCargando] = useState(true);
     const [error, setError] = useState(null);
 
     useEffect(() => {
-        const fetchDashboardData = async () => {
+        const obtenerDatosDashboard = async () => {
             try {
-                setLoading(true);
-                const events = await ApiService.getEvents();
-                setAllEvents(events);
+                setCargando(true);
+                const eventos = await ServicioApi.obtenerEventos();
+                setTodosLosEventos(eventos);
                 
-                setUserEvents(events.slice(0, 3));
+                setEventosUsuario(eventos.slice(0, 3));
                 
             } catch (err) {
                 setError('Error al cargar el dashboard');
-                console.error('Error fetching dashboard data:', err);
+                console.error('Error obteniendo datos del dashboard:', err);
             } finally {
-                setLoading(false);
+                setCargando(false);
             }
         };
 
-        fetchDashboardData();
+        obtenerDatosDashboard();
     }, []);
 
-    if (loading) {
+    if (cargando) {
         return (
             <div className="dashboard-page">
                 <div className="container">
@@ -47,15 +47,15 @@ const Dashboard = () => {
         <div className="dashboard-page">
             <div className="container">
                 <div className="dashboard-header">
-                    <h1>¡Hola, {user?.first_name || 'Usuario'}!</h1>
+                    <h1>¡Hola, {usuario?.first_name || 'Usuario'}!</h1>
                     <p>Bienvenido a tu dashboard personal</p>
                 </div>
 
                 <div className="dashboard-stats">
                     <div className="stat-card">
                         <div className="stat-icon">🎉</div>
-                        <div className="stat-content">
-                            <h3>{allEvents.length}</h3>
+                    <div className="stat-content">
+                            <h3>{todosLosEventos.length}</h3>
                             <p>Eventos disponibles</p>
                         </div>
                     </div>
@@ -123,10 +123,10 @@ const Dashboard = () => {
                                 </Link>
                             </div>
                             
-                            {userEvents.length > 0 ? (
+                            {eventosUsuario.length > 0 ? (
                                 <div className="events-grid">
-                                    {userEvents.map(event => (
-                                        <EventCard key={event.id} event={event} />
+                                    {eventosUsuario.map(evento => (
+                                        <EventCard key={evento.id} event={evento} />
                                     ))}
                                 </div>
                             ) : (

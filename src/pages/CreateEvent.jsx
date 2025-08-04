@@ -1,18 +1,18 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import ApiService from '../services/apiServices.jsx';
+import ServicioApi from '../services/apiServices.jsx';
 import LoadingSpinner from '../components/LoadingSpinner.jsx';
 import '../styles/CreateEvent.css';
 
-const CreateEvent = () => {
-    const navigate = useNavigate();
-    const [eventLocations, setEventLocations] = useState([]);
-    const [loading, setLoading] = useState(false);
-    const [locationsLoading, setLocationsLoading] = useState(true);
+const CrearEvento = () => {
+    const navegador = useNavigate();
+    const [ubicacionesEventos, setUbicacionesEventos] = useState([]);
+    const [cargando, setCargando] = useState(false);
+    const [cargandoUbicaciones, setCargandoUbicaciones] = useState(true);
     const [error, setError] = useState('');
-    const [success, setSuccess] = useState(false);
+    const [exito, setExito] = useState(false);
 
-    const [formData, setFormData] = useState({
+    const [datosFormulario, setDatosFormulario] = useState({
         name: '',
         description: '',
         start_date: '',
@@ -24,7 +24,7 @@ const CreateEvent = () => {
         id_event_location: ''
     });
 
-    const eventCategories = [
+    const categoriasEventos = [
         { id: 1, name: 'Conferencia' },
         { id: 2, name: 'Concierto' },
         { id: 3, name: 'Deportes' },
@@ -36,71 +36,71 @@ const CreateEvent = () => {
     ];
 
     useEffect(() => {
-        const fetchEventLocations = async () => {
+        const obtenerUbicacionesEventos = async () => {
             try {
-                const locations = await ApiService.getEventLocations();
-                setEventLocations(locations);
+                const ubicaciones = await ServicioApi.obtenerUbicacionesEventos();
+                setUbicacionesEventos(ubicaciones);
             } catch (err) {
-                console.error('Error fetching event locations:', err);
+                console.error('Error obteniendo ubicaciones de eventos:', err);
             } finally {
-                setLocationsLoading(false);
+                setCargandoUbicaciones(false);
             }
         };
 
-        fetchEventLocations();
+        obtenerUbicacionesEventos();
     }, []);
 
-    const handleChange = (e) => {
+    const manejarCambio = (e) => {
         const { name, value } = e.target;
-        setFormData(prev => ({
+        setDatosFormulario(prev => ({
             ...prev,
             [name]: value
         }));
         setError('');
     };
 
-    const handleSubmit = async (e) => {
+    const manejarEnvio = async (e) => {
         e.preventDefault();
-        setLoading(true);
+        setCargando(true);
         setError('');
 
         try {
-            if (new Date(formData.end_date) <= new Date(formData.start_date)) {
+            if (new Date(datosFormulario.end_date) <= new Date(datosFormulario.start_date)) {
                 throw new Error('La fecha de fin debe ser posterior a la fecha de inicio');
             }
 
-            if (parseInt(formData.max_assistance) <= 0) {
+            if (parseInt(datosFormulario.max_assistance) <= 0) {
                 throw new Error('La capacidad máxima debe ser mayor a 0');
             }
 
-            if (parseInt(formData.duration_in_minutes) <= 0) {
+            if (parseInt(datosFormulario.duration_in_minutes) <= 0) {
                 throw new Error('La duración debe ser mayor a 0 minutos');
             }
 
-            const eventData = {
-                ...formData,
-                max_assistance: parseInt(formData.max_assistance),
-                duration_in_minutes: parseInt(formData.duration_in_minutes),
-                id_event_category: parseInt(formData.id_event_category),
-                id_event_location: parseInt(formData.id_event_location),
-                price: formData.price ? parseFloat(formData.price) : null
+            const datosEvento = {
+                ...datosFormulario,
+                max_assistance: parseInt(datosFormulario.max_assistance),
+                duration_in_minutes: parseInt(datosFormulario.duration_in_minutes),
+                id_event_category: parseInt(datosFormulario.id_event_category),
+                id_event_location: parseInt(datosFormulario.id_event_location),
+                price: datosFormulario.price ? parseFloat(datosFormulario.price) : null
             };
 
-            const newEvent = await ApiService.createEvent(eventData);
-            setSuccess(true);
+            const nuevoEvento = await ServicioApi.crearEvento(datosEvento);
+            setExito(true);
             
             setTimeout(() => {
-                navigate(`/events/${newEvent.id}`);
+                navegador(`/events/${nuevoEvento.id}`);
             }, 2000);
 
         } catch (err) {
             setError(err.message || 'Error al crear el evento');
         } finally {
-            setLoading(false);
+            setCargando(false);
         }
     };
 
-    if (locationsLoading) {
+    if (cargandoUbicaciones) {
         return (
             <div className="create-event-page">
                 <div className="container">
@@ -110,7 +110,7 @@ const CreateEvent = () => {
         );
     }
 
-    if (success) {
+    if (exito) {
         return (
             <div className="create-event-page">
                 <div className="container">
@@ -132,7 +132,7 @@ const CreateEvent = () => {
                     <p>Comparte tu evento con la comunidad</p>
                 </div>
 
-                <form onSubmit={handleSubmit} className="create-event-form">
+                <form onSubmit={manejarEnvio} className="create-event-form">
                     {error && (
                         <div className="alert alert-error">
                             {error}
@@ -148,8 +148,8 @@ const CreateEvent = () => {
                                 type="text"
                                 id="name"
                                 name="name"
-                                value={formData.name}
-                                onChange={handleChange}
+                                value={datosFormulario.name}
+                                onChange={manejarCambio}
                                 required
                                 className="form-input"
                                 placeholder="Ej: Concierto de Rock en Vivo"
@@ -161,8 +161,8 @@ const CreateEvent = () => {
                             <textarea
                                 id="description"
                                 name="description"
-                                value={formData.description}
-                                onChange={handleChange}
+                                value={datosFormulario.description}
+                                onChange={manejarCambio}
                                 required
                                 className="form-textarea"
                                 rows="4"
@@ -176,15 +176,15 @@ const CreateEvent = () => {
                                 <select
                                     id="id_event_category"
                                     name="id_event_category"
-                                    value={formData.id_event_category}
-                                    onChange={handleChange}
+                                    value={datosFormulario.id_event_category}
+                                    onChange={manejarCambio}
                                     required
                                     className="form-select"
                                 >
                                     <option value="">Selecciona una categoría</option>
-                                    {eventCategories.map(category => (
-                                        <option key={category.id} value={category.id}>
-                                            {category.name}
+                                    {categoriasEventos.map(categoria => (
+                                        <option key={categoria.id} value={categoria.id}>
+                                            {categoria.name}
                                         </option>
                                     ))}
                                 </select>
@@ -195,15 +195,15 @@ const CreateEvent = () => {
                                 <select
                                     id="id_event_location"
                                     name="id_event_location"
-                                    value={formData.id_event_location}
-                                    onChange={handleChange}
+                                    value={datosFormulario.id_event_location}
+                                    onChange={manejarCambio}
                                     required
                                     className="form-select"
                                 >
                                     <option value="">Selecciona una ubicación</option>
-                                    {eventLocations.map(location => (
-                                        <option key={location.id} value={location.id}>
-                                            {location.name}
+                                    {ubicacionesEventos.map(ubicacion => (
+                                        <option key={ubicacion.id} value={ubicacion.id}>
+                                            {ubicacion.name}
                                         </option>
                                     ))}
                                 </select>
@@ -221,8 +221,8 @@ const CreateEvent = () => {
                                     type="datetime-local"
                                     id="start_date"
                                     name="start_date"
-                                    value={formData.start_date}
-                                    onChange={handleChange}
+                                    value={datosFormulario.start_date}
+                                    onChange={manejarCambio}
                                     required
                                     className="form-input"
                                 />
@@ -234,8 +234,8 @@ const CreateEvent = () => {
                                     type="datetime-local"
                                     id="end_date"
                                     name="end_date"
-                                    value={formData.end_date}
-                                    onChange={handleChange}
+                                    value={datosFormulario.end_date}
+                                    onChange={manejarCambio}
                                     required
                                     className="form-input"
                                 />
@@ -248,8 +248,8 @@ const CreateEvent = () => {
                                 type="number"
                                 id="duration_in_minutes"
                                 name="duration_in_minutes"
-                                value={formData.duration_in_minutes}
-                                onChange={handleChange}
+                                value={datosFormulario.duration_in_minutes}
+                                onChange={manejarCambio}
                                 required
                                 min="1"
                                 className="form-input"
@@ -268,8 +268,8 @@ const CreateEvent = () => {
                                     type="number"
                                     id="max_assistance"
                                     name="max_assistance"
-                                    value={formData.max_assistance}
-                                    onChange={handleChange}
+                                    value={datosFormulario.max_assistance}
+                                    onChange={manejarCambio}
                                     required
                                     min="1"
                                     className="form-input"
@@ -283,8 +283,8 @@ const CreateEvent = () => {
                                     type="number"
                                     id="price"
                                     name="price"
-                                    value={formData.price}
-                                    onChange={handleChange}
+                                    value={datosFormulario.price}
+                                    onChange={manejarCambio}
                                     min="0"
                                     step="0.01"
                                     className="form-input"
@@ -297,17 +297,17 @@ const CreateEvent = () => {
                     <div className="form-actions">
                         <button
                             type="button"
-                            onClick={() => navigate('/dashboard')}
+                            onClick={() => navegador('/dashboard')}
                             className="btn btn-secondary"
                         >
                             Cancelar
                         </button>
                         <button
                             type="submit"
-                            disabled={loading}
+                            disabled={cargando}
                             className="btn btn-primary"
                         >
-                            {loading ? <LoadingSpinner size="small" text="" /> : 'Crear Evento'}
+                            {cargando ? <LoadingSpinner size="small" text="" /> : 'Crear Evento'}
                         </button>
                     </div>
                 </form>
@@ -316,4 +316,4 @@ const CreateEvent = () => {
     );
 };
 
-export default CreateEvent;
+export default CrearEvento;

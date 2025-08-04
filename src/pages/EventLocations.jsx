@@ -1,17 +1,17 @@
 import { useState, useEffect } from 'react';
-import ApiService from '../services/apiServices.jsx';
+import ServicioApi from '../services/apiServices.jsx';
 import LoadingSpinner from '../components/LoadingSpinner.jsx';
 import '../styles/EventLocations.css';
 
-const EventLocations = () => {
-    const [locations, setLocations] = useState([]);
-    const [loading, setLoading] = useState(true);
-    const [creating, setCreating] = useState(false);
-    const [editing, setEditing] = useState(null);
+const UbicacionesEventos = () => {
+    const [ubicaciones, setUbicaciones] = useState([]);
+    const [cargando, setCargando] = useState(true);
+    const [creando, setCreando] = useState(false);
+    const [editando, setEditando] = useState(null);
     const [error, setError] = useState('');
-    const [showForm, setShowForm] = useState(false);
+    const [mostrarFormulario, setMostrarFormulario] = useState(false);
 
-    const [formData, setFormData] = useState({
+    const [datosFormulario, setDatosFormulario] = useState({
         name: '',
         full_address: '',
         max_capacity: '',
@@ -20,100 +20,100 @@ const EventLocations = () => {
     });
 
     useEffect(() => {
-        fetchLocations();
+        obtenerUbicaciones();
     }, []);
 
-    const fetchLocations = async () => {
+    const obtenerUbicaciones = async () => {
         try {
-            setLoading(true);
-            const locationsData = await ApiService.getEventLocations();
-            setLocations(locationsData);
+            setCargando(true);
+            const datosUbicaciones = await ServicioApi.obtenerUbicacionesEventos();
+            setUbicaciones(datosUbicaciones);
         } catch (err) {
             setError('Error al cargar las ubicaciones');
             console.error('Error fetching locations:', err);
         } finally {
-            setLoading(false);
+            setCargando(false);
         }
     };
 
-    const resetForm = () => {
-        setFormData({
+    const reiniciarFormulario = () => {
+        setDatosFormulario({
             name: '',
             full_address: '',
             max_capacity: '',
             latitude: '',
             longitude: ''
         });
-        setEditing(null);
-        setShowForm(false);
+        setEditando(null);
+        setMostrarFormulario(false);
         setError('');
     };
 
-    const handleChange = (e) => {
-        setFormData({
-            ...formData,
+    const manejarCambio = (e) => {
+        setDatosFormulario({
+            ...datosFormulario,
             [e.target.name]: e.target.value
         });
         setError('');
     };
 
-    const handleSubmit = async (e) => {
+    const manejarEnvio = async (e) => {
         e.preventDefault();
-        setCreating(true);
+        setCreando(true);
         setError('');
 
         try {
-            const locationData = {
-                ...formData,
-                max_capacity: parseInt(formData.max_capacity),
-                latitude: formData.latitude ? parseFloat(formData.latitude) : null,
-                longitude: formData.longitude ? parseFloat(formData.longitude) : null
+            const datosUbicacion = {
+                ...datosFormulario,
+                max_capacity: parseInt(datosFormulario.max_capacity),
+                latitude: datosFormulario.latitude ? parseFloat(datosFormulario.latitude) : null,
+                longitude: datosFormulario.longitude ? parseFloat(datosFormulario.longitude) : null
             };
 
-            if (editing) {
-                await ApiService.updateEventLocation(editing.id, locationData);
+            if (editando) {
+                await ServicioApi.actualizarUbicacionEvento(editando.id, datosUbicacion);
             } else {
-                await ApiService.createEventLocation(locationData);
+                await ServicioApi.crearUbicacionEvento(datosUbicacion);
             }
 
-            resetForm();
-            fetchLocations();
+            reiniciarFormulario();
+            obtenerUbicaciones();
         } catch (err) {
             setError(err.message || 'Error al guardar la ubicación');
         } finally {
-            setCreating(false);
+            setCreando(false);
         }
     };
 
-    const handleEdit = (location) => {
-        setFormData({
-            name: location.name,
-            full_address: location.full_address,
-            max_capacity: location.max_capacity.toString(),
-            latitude: location.latitude?.toString() || '',
-            longitude: location.longitude?.toString() || ''
+    const manejarEditar = (ubicacion) => {
+        setDatosFormulario({
+            name: ubicacion.name,
+            full_address: ubicacion.full_address,
+            max_capacity: ubicacion.max_capacity.toString(),
+            latitude: ubicacion.latitude?.toString() || '',
+            longitude: ubicacion.longitude?.toString() || ''
         });
-        setEditing(location);
-        setShowForm(true);
+        setEditando(ubicacion);
+        setMostrarFormulario(true);
     };
 
-    const handleDelete = async (id) => {
+    const manejarEliminar = async (id) => {
         if (window.confirm('¿Estás seguro de que quieres eliminar esta ubicación?')) {
             try {
-                await ApiService.deleteEventLocation(id);
-                fetchLocations();
+                await ServicioApi.eliminarUbicacionEvento(id);
+                obtenerUbicaciones();
             } catch (err) {
                 setError(err.message || 'Error al eliminar la ubicación');
             }
         }
     };
 
-    const startCreating = () => {
-        resetForm();
-        setShowForm(true);
+    const comenzarCreacion = () => {
+        reiniciarFormulario();
+        setMostrarFormulario(true);
     };
 
-    if (loading) {
+    if (cargando) {
         return (
             <div className="locations-page">
                 <div className="container">
@@ -133,20 +133,20 @@ const EventLocations = () => {
 
                 <div className="locations-actions">
                     <button
-                        onClick={startCreating}
+                        onClick={comenzarCreacion}
                         className="btn btn-primary"
-                        disabled={showForm}
+                        disabled={mostrarFormulario}
                     >
                         + Nueva Ubicación
                     </button>
                 </div>
 
-                {showForm && (
+                {mostrarFormulario && (
                     <div className="location-form-card">
                         <div className="form-header">
-                            <h3>{editing ? 'Editar Ubicación' : 'Nueva Ubicación'}</h3>
+                            <h3>{editando ? 'Editar Ubicación' : 'Nueva Ubicación'}</h3>
                             <button
-                                onClick={resetForm}
+                                onClick={reiniciarFormulario}
                                 className="btn-close"
                                 type="button"
                             >
@@ -154,7 +154,7 @@ const EventLocations = () => {
                             </button>
                         </div>
 
-                        <form onSubmit={handleSubmit} className="location-form">
+                        <form onSubmit={manejarEnvio} className="location-form">
                             {error && (
                                 <div className="alert alert-error">
                                     {error}
@@ -167,8 +167,8 @@ const EventLocations = () => {
                                     type="text"
                                     id="name"
                                     name="name"
-                                    value={formData.name}
-                                    onChange={handleChange}
+                                    value={datosFormulario.name}
+                                    onChange={manejarCambio}
                                     required
                                     className="form-input"
                                     placeholder="Ej: Teatro Municipal"
@@ -181,8 +181,8 @@ const EventLocations = () => {
                                     type="text"
                                     id="full_address"
                                     name="full_address"
-                                    value={formData.full_address}
-                                    onChange={handleChange}
+                                    value={datosFormulario.full_address}
+                                    onChange={manejarCambio}
                                     required
                                     className="form-input"
                                     placeholder="Ej: Av. Corrientes 1234, Buenos Aires"
@@ -196,8 +196,8 @@ const EventLocations = () => {
                                         type="number"
                                         id="max_capacity"
                                         name="max_capacity"
-                                        value={formData.max_capacity}
-                                        onChange={handleChange}
+                                        value={datosFormulario.max_capacity}
+                                        onChange={manejarCambio}
                                         required
                                         min="1"
                                         className="form-input"
@@ -211,8 +211,8 @@ const EventLocations = () => {
                                         type="number"
                                         id="latitude"
                                         name="latitude"
-                                        value={formData.latitude}
-                                        onChange={handleChange}
+                                        value={datosFormulario.latitude}
+                                        onChange={manejarCambio}
                                         step="any"
                                         className="form-input"
                                         placeholder="Ej: -34.6037"
@@ -225,8 +225,8 @@ const EventLocations = () => {
                                         type="number"
                                         id="longitude"
                                         name="longitude"
-                                        value={formData.longitude}
-                                        onChange={handleChange}
+                                        value={datosFormulario.longitude}
+                                        onChange={manejarCambio}
                                         step="any"
                                         className="form-input"
                                         placeholder="Ej: -58.3816"
@@ -237,17 +237,17 @@ const EventLocations = () => {
                             <div className="form-actions">
                                 <button
                                     type="button"
-                                    onClick={resetForm}
+                                    onClick={reiniciarFormulario}
                                     className="btn btn-secondary"
                                 >
                                     Cancelar
                                 </button>
                                 <button
                                     type="submit"
-                                    disabled={creating}
+                                    disabled={creando}
                                     className="btn btn-primary"
                                 >
-                                    {creating ? <LoadingSpinner size="small" text="" /> : (editing ? 'Actualizar' : 'Crear')}
+                                    {creando ? <LoadingSpinner size="small" text="" /> : (editando ? 'Actualizar' : 'Crear')}
                                 </button>
                             </div>
                         </form>
@@ -255,22 +255,22 @@ const EventLocations = () => {
                 )}
 
                 <div className="locations-list">
-                    {locations.length > 0 ? (
+                    {ubicaciones.length > 0 ? (
                         <div className="locations-grid">
-                            {locations.map(location => (
-                                <div key={location.id} className="location-card">
+                            {ubicaciones.map(ubicacion => (
+                                <div key={ubicacion.id} className="location-card">
                                     <div className="location-header">
-                                        <h3 className="location-name">{location.name}</h3>
+                                        <h3 className="location-name">{ubicacion.name}</h3>
                                         <div className="location-actions">
                                             <button
-                                                onClick={() => handleEdit(location)}
+                                                onClick={() => manejarEditar(ubicacion)}
                                                 className="btn-action btn-edit"
                                                 title="Editar"
                                             >
                                                 ✏️
                                             </button>
                                             <button
-                                                onClick={() => handleDelete(location.id)}
+                                                onClick={() => manejarEliminar(ubicacion.id)}
                                                 className="btn-action btn-delete"
                                                 title="Eliminar"
                                             >
@@ -282,21 +282,21 @@ const EventLocations = () => {
                                     <div className="location-details">
                                         <div className="detail-item">
                                             <span className="detail-icon">📍</span>
-                                            <span className="detail-text">{location.full_address}</span>
+                                            <span className="detail-text">{ubicacion.full_address}</span>
                                         </div>
 
                                         <div className="detail-item">
                                             <span className="detail-icon">👥</span>
                                             <span className="detail-text">
-                                                Capacidad: {location.max_capacity} personas
+                                                Capacidad: {ubicacion.max_capacity} personas
                                             </span>
                                         </div>
 
-                                        {location.latitude && location.longitude && (
+                                        {ubicacion.latitude && ubicacion.longitude && (
                                             <div className="detail-item">
                                                 <span className="detail-icon">🗺️</span>
                                                 <span className="detail-text">
-                                                    {location.latitude}, {location.longitude}
+                                                    {ubicacion.latitude}, {ubicacion.longitude}
                                                 </span>
                                             </div>
                                         )}
@@ -309,7 +309,7 @@ const EventLocations = () => {
                             <h3>No hay ubicaciones registradas</h3>
                             <p>Crea tu primera ubicación para comenzar a organizar eventos.</p>
                             <button
-                                onClick={startCreating}
+                                onClick={comenzarCreacion}
                                 className="btn btn-primary"
                             >
                                 Crear Primera Ubicación
@@ -322,4 +322,4 @@ const EventLocations = () => {
     );
 };
 
-export default EventLocations;
+export default UbicacionesEventos;

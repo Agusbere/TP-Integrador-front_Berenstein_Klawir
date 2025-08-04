@@ -2,14 +2,14 @@ import axios from 'axios';
 
 const API_BASE_URL = 'http://localhost:3000/api';
 
-const apiClient = axios.create({
+const clienteApi = axios.create({
     baseURL: API_BASE_URL,
     headers: {
         'Content-Type': 'application/json',
     },
 });
 
-apiClient.interceptors.request.use(
+clienteApi.interceptors.request.use(
     (config) => {
         const token = localStorage.getItem('token');
         if (token) {
@@ -22,124 +22,124 @@ apiClient.interceptors.request.use(
     }
 );
 
-apiClient.interceptors.response.use(
+clienteApi.interceptors.response.use(
     (response) => {
         return response.data;
     },
     (error) => {
-        const message = error.response?.data?.message || error.message || 'Error en la solicitud';
+        const mensaje = error.response?.data?.message || error.message || 'Error en la solicitud';
 
         if (error.response?.status === 401) {
             localStorage.removeItem('token');
         }
 
-        return Promise.reject(new Error(message));
+        return Promise.reject(new Error(mensaje));
     }
 );
 
-const publicApiClient = axios.create({
+const clienteApiPublica = axios.create({
     baseURL: API_BASE_URL,
     headers: {
         'Content-Type': 'application/json',
     },
 });
 
-publicApiClient.interceptors.response.use(
+clienteApiPublica.interceptors.response.use(
     (response) => {
         return response.data;
     },
     (error) => {
-        const message = error.response?.data?.message || error.message || 'Error en la solicitud';
-        return Promise.reject(new Error(message));
+        const mensaje = error.response?.data?.message || error.message || 'Error en la solicitud';
+        return Promise.reject(new Error(mensaje));
     }
 );
 
-class ApiService {
-    static async login(credentials) {
-        return publicApiClient.post('/auth/login', credentials);
+class ServicioApi {
+    static async iniciarSesion(credenciales) {
+        return clienteApiPublica.post('/auth/login', credenciales);
     }
 
-    static async register(userData) {
-        return publicApiClient.post('/auth/register', userData);
+    static async registrarse(datosUsuario) {
+        return clienteApiPublica.post('/auth/register', datosUsuario);
     }
 
-    static async getEvents(params = {}) {
-        return apiClient.get('/event', { params });
+    static async obtenerEventos(parametros = {}) {
+        return clienteApi.get('/event', { params: parametros });
     }
 
-    static async getEventById(id) {
-        return apiClient.get(`/event/${id}`);
+    static async obtenerEventoPorId(id) {
+        return clienteApi.get(`/event/${id}`);
     }
 
-    static async searchEvents(searchParams) {
-        const validParams = {};
+    static async buscarEventos(parametrosBusqueda) {
+        const parametrosValidos = {};
 
-        if (searchParams.name) validParams.name = searchParams.name;
-        if (searchParams.startdate) validParams.startdate = searchParams.startdate;
-        if (searchParams.tag) validParams.tag = searchParams.tag;
+        if (parametrosBusqueda.name) parametrosValidos.name = parametrosBusqueda.name;
+        if (parametrosBusqueda.startdate) parametrosValidos.startdate = parametrosBusqueda.startdate;
+        if (parametrosBusqueda.tag) parametrosValidos.tag = parametrosBusqueda.tag;
 
-        return apiClient.get('/event/search', { params: validParams });
+        return clienteApi.get('/event/search', { params: parametrosValidos });
     }
 
-    static async createEvent(eventData) {
-        return apiClient.post('/event', eventData);
+    static async crearEvento(datosEvento) {
+        return clienteApi.post('/event', datosEvento);
     }
 
-    static async updateEvent(id, eventData) {
-        return apiClient.put(`/event/${id}`, eventData);
+    static async actualizarEvento(id, datosEvento) {
+        return clienteApi.put(`/event/${id}`, datosEvento);
     }
 
-    static async deleteEvent(id) {
-        return apiClient.delete(`/event/${id}`);
+    static async eliminarEvento(id) {
+        return clienteApi.delete(`/event/${id}`);
     }
 
-    static async getEventCategories() {
-        return publicApiClient.get('/event/categories');
+    static async obtenerCategoriasEventos() {
+        return clienteApiPublica.get('/event/categories');
     }
 
-    static async enrollInEvent(eventId) {
-        return apiClient.post(`/event/${eventId}/enrollment`);
+    static async inscribirseEnEvento(idEvento) {
+        return clienteApi.post(`/event/${idEvento}/enrollment`);
     }
 
-    static async unenrollFromEvent(eventId) {
-        return apiClient.delete(`/event/${eventId}/enrollment`);
+    static async desinscribirseDeEvento(idEvento) {
+        return clienteApi.delete(`/event/${idEvento}/enrollment`);
     }
 
-    static async getEventLocations() {
-        return apiClient.get('/event-location');
+    static async obtenerUbicacionesEventos() {
+        return clienteApi.get('/event-location');
     }
 
-    static async getEventLocationById(id) {
-        return apiClient.get(`/event-location/${id}`);
+    static async obtenerUbicacionEventoPorId(id) {
+        return clienteApi.get(`/event-location/${id}`);
     }
 
-    static async createEventLocation(locationData) {
-        return apiClient.post('/event-location', locationData);
+    static async crearUbicacionEvento(datosUbicacion) {
+        return clienteApi.post('/event-location', datosUbicacion);
     }
 
-    static async updateEventLocation(id, locationData) {
-        return apiClient.put(`/event-location/${id}`, locationData);
+    static async actualizarUbicacionEvento(id, datosUbicacion) {
+        return clienteApi.put(`/event-location/${id}`, datosUbicacion);
     }
 
-    static async deleteEventLocation(id) {
-        return apiClient.delete(`/event-location/${id}`);
+    static async eliminarUbicacionEvento(id) {
+        return clienteApi.delete(`/event-location/${id}`);
     }
 
-    static async getUserProfile() {
-        return apiClient.get('/user/profile');
+    static async obtenerPerfilUsuario() {
+        return clienteApi.get('/user/profile');
     }
 
-    static async getAllUsers() {
-        return apiClient.get('/user');
+    static async obtenerTodosLosUsuarios() {
+        return clienteApi.get('/user');
     }
 
-    static async updateUserProfile(userData) {
-        return apiClient.put('/user/profile', userData);
+    static async actualizarPerfilUsuario(datosUsuario) {
+        return clienteApi.put('/user/profile', datosUsuario);
     }
 
-    static async deleteUserProfile() {
-        return apiClient.delete('/user/profile');
+    static async eliminarPerfilUsuario() {
+        return clienteApi.delete('/user/profile');
     }
 }
 
-export default ApiService;
+export default ServicioApi;

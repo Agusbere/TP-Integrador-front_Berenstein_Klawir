@@ -15,7 +15,7 @@ const Register = () => {
     const [error, setError] = useState('');
     const [success, setSuccess] = useState(false);
 
-    const { register } = useAuth();
+    const { registrarse } = useAuth();
     const navigate = useNavigate();
 
     const handleChange = (e) => {
@@ -32,13 +32,15 @@ const Register = () => {
         setError('');
 
         try {
-            await register(formData);
+            await registrarse(formData);
             setSuccess(true);
             setTimeout(() => {
                 navigate('/login');
             }, 2000);
         } catch (err) {
-            setError(err.message || 'Error al registrarse');
+            // No mostrar errores técnicos al usuario
+            console.error('Error en registro:', err);
+            setError('Error al crear la cuenta. Por favor, intenta nuevamente.');
         } finally {
             setLoading(false);
         }

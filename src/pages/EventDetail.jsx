@@ -2,76 +2,76 @@ import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
-import ApiService from '../services/apiServices.jsx';
+import ServicioApi from '../services/apiServices.jsx';
 import { useAuth } from '../hooks/useAuth.jsx';
 import LoadingSpinner from '../components/LoadingSpinner.jsx';
 import '../styles/EventDetail.css';
 
 const EventDetail = () => {
     const { id } = useParams();
-    const navigate = useNavigate();
-    const { isAuthenticated } = useAuth();
+    const navegador = useNavigate();
+    const { estaAutenticado } = useAuth();
     
-    const [event, setEvent] = useState(null);
-    const [loading, setLoading] = useState(true);
-    const [enrollLoading, setEnrollLoading] = useState(false);
+    const [evento, setEvento] = useState(null);
+    const [cargando, setCargando] = useState(true);
+    const [cargandoInscripcion, setCargandoInscripcion] = useState(false);
     const [error, setError] = useState(null);
-    const [enrollError, setEnrollError] = useState('');
-    const [enrollSuccess, setEnrollSuccess] = useState('');
+    const [errorInscripcion, setErrorInscripcion] = useState('');
+    const [exitoInscripcion, setExitoInscripcion] = useState('');
 
     useEffect(() => {
-        const fetchEvent = async () => {
+        const obtenerEvento = async () => {
             try {
-                setLoading(true);
-                const eventData = await ApiService.getEventById(id);
-                setEvent(eventData);
+                setCargando(true);
+                const datosEvento = await ServicioApi.obtenerEventoPorId(id);
+                setEvento(datosEvento);
             } catch (err) {
                 setError('Error al cargar el evento');
-                console.error('Error fetching event:', err);
+                console.error('Error obteniendo evento:', err);
             } finally {
-                setLoading(false);
+                setCargando(false);
             }
         };
 
-        fetchEvent();
+        obtenerEvento();
     }, [id]);
 
-    const handleEnroll = async () => {
-        if (!isAuthenticated) {
-            navigate('/login');
+    const manejarInscripcion = async () => {
+        if (!estaAutenticado) {
+            navegador('/login');
             return;
         }
 
-        setEnrollLoading(true);
-        setEnrollError('');
-        setEnrollSuccess('');
+        setCargandoInscripcion(true);
+        setErrorInscripcion('');
+        setExitoInscripcion('');
 
         try {
-            await ApiService.enrollInEvent(id);
-            setEnrollSuccess('¡Te has inscrito exitosamente al evento!');
+            await ServicioApi.inscribirseEnEvento(id);
+            setExitoInscripcion('¡Te has inscrito exitosamente al evento!');
         } catch (err) {
-            setEnrollError(err.message || 'Error al inscribirse al evento');
+            setErrorInscripcion(err.message || 'Error al inscribirse al evento');
         } finally {
-            setEnrollLoading(false);
+            setCargandoInscripcion(false);
         }
     };
 
-    const handleUnenroll = async () => {
-        setEnrollLoading(true);
-        setEnrollError('');
-        setEnrollSuccess('');
+    const manejarDesinscripcion = async () => {
+        setCargandoInscripcion(true);
+        setErrorInscripcion('');
+        setExitoInscripcion('');
 
         try {
-            await ApiService.unenrollFromEvent(id);
-            setEnrollSuccess('Te has desinscrito del evento exitosamente');
+            await ServicioApi.desinscribirseDeEvento(id);
+            setExitoInscripcion('Te has desinscrito del evento exitosamente');
         } catch (err) {
-            setEnrollError(err.message || 'Error al desinscribirse del evento');
+            setErrorInscripcion(err.message || 'Error al desinscribirse del evento');
         } finally {
-            setEnrollLoading(false);
+            setCargandoInscripcion(false);
         }
     };
 
-    if (loading) {
+    if (cargando) {
         return (
             <div className="event-detail-page">
                 <div className="container">
@@ -81,7 +81,7 @@ const EventDetail = () => {
         );
     }
 
-    if (error || !event) {
+    if (error || !evento) {
         return (
             <div className="event-detail-page">
                 <div className="container">
@@ -89,7 +89,7 @@ const EventDetail = () => {
                         <h2>Error al cargar el evento</h2>
                         <p>{error || 'El evento no existe'}</p>
                         <button 
-                            onClick={() => navigate('/events')} 
+                            onClick={() => navegador('/events')} 
                             className="btn btn-primary"
                         >
                             Volver a eventos
@@ -100,17 +100,17 @@ const EventDetail = () => {
         );
     }
 
-    const formatEventDate = (dateString) => {
+    const formatearFechaEvento = (fechaCadena) => {
         try {
-            return format(new Date(dateString), 'EEEE, dd \'de\' MMMM \'de\' yyyy', { locale: es });
+            return format(new Date(fechaCadena), 'EEEE, dd \'de\' MMMM \'de\' yyyy', { locale: es });
         } catch {
             return 'Fecha no válida';
         }
     };
 
-    const formatEventTime = (dateString) => {
+    const formatearHoraEvento = (fechaCadena) => {
         try {
-            return format(new Date(dateString), 'HH:mm', { locale: es });
+            return format(new Date(fechaCadena), 'HH:mm', { locale: es });
         } catch {
             return '';
         }
@@ -122,21 +122,21 @@ const EventDetail = () => {
                 <div className="event-detail">
                     <div className="event-header">
                         <div className="event-category-badge">
-                            {event.event_category?.name || 'Sin categoría'}
+                            {evento.event_category?.name || 'Sin categoría'}
                         </div>
-                        <h1 className="event-title">{event.name}</h1>
+                        <h1 className="event-title">{evento.name}</h1>
                         <div className="event-meta">
                             <div className="meta-item">
                                 <span className="meta-label">Fecha:</span>
-                                <span>{formatEventDate(event.start_date)}</span>
+                                <span>{formatearFechaEvento(evento.start_date)}</span>
                             </div>
                             <div className="meta-item">
                                 <span className="meta-label">Hora:</span>
-                                <span>{formatEventTime(event.start_date)} - {formatEventTime(event.end_date)}</span>
+                                <span>{formatearHoraEvento(evento.start_date)} - {formatearHoraEvento(evento.end_date)}</span>
                             </div>
                             <div className="meta-item">
                                 <span className="meta-label">Ubicación:</span>
-                                <span>{event.event_location?.name || 'Ubicación por confirmar'}</span>
+                                <span>{evento.event_location?.name || 'Ubicación por confirmar'}</span>
                             </div>
                         </div>
                     </div>
@@ -145,18 +145,18 @@ const EventDetail = () => {
                         <div className="event-main">
                             <div className="event-description">
                                 <h2>Descripción</h2>
-                                <p>{event.description}</p>
+                                <p>{evento.description}</p>
                             </div>
 
-                            {event.event_location && (
+                            {evento.event_location && (
                                 <div className="event-location-details">
                                     <h2>Ubicación</h2>
                                     <div className="location-card">
-                                        <h3>{event.event_location.name}</h3>
-                                        <p>{event.event_location.full_address}</p>
-                                        {event.event_location.latitude && event.event_location.longitude && (
+                                        <h3>{evento.event_location.name}</h3>
+                                        <p>{evento.event_location.full_address}</p>
+                                        {evento.event_location.latitude && evento.event_location.longitude && (
                                             <p className="coordinates">
-                                                Coordenadas: {event.event_location.latitude}, {event.event_location.longitude}
+                                                Coordenadas: {evento.event_location.latitude}, {evento.event_location.longitude}
                                             </p>
                                         )}
                                     </div>
@@ -168,66 +168,66 @@ const EventDetail = () => {
                             <div className="event-card-info">
                                 <div className="info-item">
                                     <span className="info-label">Capacidad máxima</span>
-                                    <span className="info-value">{event.max_assistance} personas</span>
+                                    <span className="info-value">{evento.max_assistance} personas</span>
                                 </div>
                                 
-                                {event.price && (
+                                {evento.price && (
                                     <div className="info-item">
                                         <span className="info-label">Precio</span>
-                                        <span className="info-value price">${event.price}</span>
+                                        <span className="info-value price">${evento.price}</span>
                                     </div>
                                 )}
 
                                 <div className="info-item">
                                     <span className="info-label">Duración estimada</span>
-                                    <span className="info-value">{event.duration_in_minutes} minutos</span>
+                                    <span className="info-value">{evento.duration_in_minutes} minutos</span>
                                 </div>
 
-                                {event.creator_user && (
+                                {evento.creator_user && (
                                     <div className="info-item">
                                         <span className="info-label">Organizador</span>
                                         <span className="info-value">
-                                            {event.creator_user.first_name} {event.creator_user.last_name}
+                                            {evento.creator_user.first_name} {evento.creator_user.last_name}
                                         </span>
                                     </div>
                                 )}
                             </div>
 
                             <div className="enrollment-section">
-                                {enrollError && (
+                                {errorInscripcion && (
                                     <div className="alert alert-error">
-                                        {enrollError}
+                                        {errorInscripcion}
                                     </div>
                                 )}
                                 
-                                {enrollSuccess && (
+                                {exitoInscripcion && (
                                     <div className="alert alert-success">
-                                        {enrollSuccess}
+                                        {exitoInscripcion}
                                     </div>
                                 )}
 
-                                {isAuthenticated ? (
+                                {estaAutenticado ? (
                                     <div className="enrollment-actions">
                                         <button 
-                                            onClick={handleEnroll}
-                                            disabled={enrollLoading}
+                                            onClick={manejarInscripcion}
+                                            disabled={cargandoInscripcion}
                                             className="btn btn-primary btn-block"
                                         >
-                                            {enrollLoading ? <LoadingSpinner size="small" text="" /> : 'Inscribirse al Evento'}
+                                            {cargandoInscripcion ? <LoadingSpinner size="small" text="" /> : 'Inscribirse al Evento'}
                                         </button>
                                         <button 
-                                            onClick={handleUnenroll}
-                                            disabled={enrollLoading}
+                                            onClick={manejarDesinscripcion}
+                                            disabled={cargandoInscripcion}
                                             className="btn btn-secondary btn-block"
                                         >
-                                            {enrollLoading ? <LoadingSpinner size="small" text="" /> : 'Desinscribirse'}
+                                            {cargandoInscripcion ? <LoadingSpinner size="small" text="" /> : 'Desinscribirse'}
                                         </button>
                                     </div>
                                 ) : (
                                     <div className="login-prompt">
                                         <p>Inicia sesión para inscribirte a este evento</p>
                                         <button 
-                                            onClick={() => navigate('/login')}
+                                            onClick={() => navegador('/login')}
                                             className="btn btn-primary btn-block"
                                         >
                                             Iniciar Sesión
