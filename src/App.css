@@ -206,6 +206,30 @@ h6 {
   h3 {
     font-size: 1.25rem;
   }
+
+  .nav-container {
+    padding: 0 1rem;
+  }
+
+  .nav-menu {
+    position: static;
+    transform: none;
+    gap: 1rem;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .nav-logo {
+    font-size: 1.2rem;
+  }
+
+  .logo-text {
+    font-size: 1.4rem;
+  }
+
+  .logo-image {
+    height: 30px;
+  }
 }
 
 @media print {
@@ -232,6 +256,7 @@ h6 {
   justify-content: space-between;
   align-items: center;
   height: 70px;
+  position: relative;
 }
 
 .nav-logo {
@@ -268,6 +293,9 @@ h6 {
   display: flex;
   align-items: center;
   gap: 2rem;
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
 }
 
 .nav-link {
@@ -386,14 +414,21 @@ h6 {
 }
 
 .logout-btn {
-  color: #e74c3c;
-  border-top: 1px solid #eee;
-  margin-top: 0.25rem;
-  padding-top: 0.75rem;
+  background: none;
+  border: none;
+  color: white;
+  cursor: pointer;
+  font-weight: 500;
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  transition: all 0.3s ease;
+  font-family: inherit;
+  font-size: inherit;
 }
 
 .logout-btn:hover {
-  background-color: #fef2f2;
+  background-color: rgba(255, 255, 255, 0.1);
+  color: white;
 }
 
 .nav-auth {

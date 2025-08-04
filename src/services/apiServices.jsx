@@ -45,6 +45,8 @@ const clienteApiPublica = axios.create({
   },
 });
 
+
+
 clienteApiPublica.interceptors.response.use(
   (response) => {
     return response.data;
@@ -67,6 +69,10 @@ class ServicioApi {
 
   static async obtenerEventos(parametros = {}) {
     return clienteApi.get("/event", { params: parametros });
+  }
+
+  static async obtenerMisEventos() {
+    return clienteApi.get("/event/my-events");
   }
 
   static async obtenerEventoPorId(id) {

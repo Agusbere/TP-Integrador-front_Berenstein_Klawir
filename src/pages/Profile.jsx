@@ -5,7 +5,7 @@ import LoadingSpinner from "../components/LoadingSpinner.jsx";
 import "../styles/Profile.css";
 
 const Perfil = () => {
-  const { usuario, cerrarSesion } = useAuth();
+  const { user, logout } = useAuth();
   const [datosFormulario, setDatosFormulario] = useState({
     first_name: "",
     last_name: "",
@@ -18,14 +18,14 @@ const Perfil = () => {
     useState(false);
 
   useEffect(() => {
-    if (usuario) {
+    if (user) {
       setDatosFormulario({
-        first_name: usuario.first_name || "",
-        last_name: usuario.last_name || "",
-        username: usuario.username || "",
+        first_name: user.first_name || "",
+        last_name: user.last_name || "",
+        username: user.username || "",
       });
     }
-  }, [usuario]);
+  }, [user]);
 
   const manejarCambio = (e) => {
     setDatosFormulario({
@@ -55,7 +55,7 @@ const Perfil = () => {
   const manejarEliminarCuenta = async () => {
     try {
       await ServicioApi.eliminarPerfilUsuario();
-      cerrarSesion();
+      logout();
     } catch (err) {
       setError(err.message || "Error al eliminar la cuenta");
       setMostrarConfirmacionEliminar(false);
@@ -74,12 +74,12 @@ const Perfil = () => {
           <div className="profile-card">
             <div className="profile-avatar-section">
               <div className="profile-avatar">
-                {usuario?.first_name?.charAt(0)?.toUpperCase() || "U"}
+                {user?.first_name?.charAt(0)?.toUpperCase() || "U"}
               </div>
               <h2>
-                {usuario?.first_name} {usuario?.last_name}
+                {user?.first_name} {user?.last_name}
               </h2>
-              <p className="profile-username">@{usuario?.username}</p>
+              <p className="profile-username">@{user?.username}</p>
             </div>
 
             <form onSubmit={manejarEnvio} className="profile-form">

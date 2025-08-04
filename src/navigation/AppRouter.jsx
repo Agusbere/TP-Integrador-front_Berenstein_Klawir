@@ -15,6 +15,7 @@ import CreateEvent from "../pages/CreateEvent.jsx";
 import Profile from "../pages/Profile.jsx";
 import EventLocations from "../pages/EventLocations.jsx";
 import Dashboard from "../pages/Dashboard.jsx";
+import MyEvents from "../pages/MyEvents.jsx";
 import LoadingSpinner from "../components/LoadingSpinner.jsx";
 
 const ProtectedRoute = ({ children }) => {
@@ -86,6 +87,14 @@ const AppRouter = () => {
               element={
                 <ProtectedRoute>
                   <Profile />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/my-events"
+              element={
+                <ProtectedRoute>
+                  <MyEvents />
                 </ProtectedRoute>
               }
             />

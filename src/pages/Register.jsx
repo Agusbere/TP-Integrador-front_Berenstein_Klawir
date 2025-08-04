@@ -15,7 +15,7 @@ const Register = () => {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState(false);
 
-  const { registrarse } = useAuth();
+  const { registrarse, login } = useAuth();
   const navigate = useNavigate();
 
   const handleChange = (e) => {
@@ -33,14 +33,21 @@ const Register = () => {
 
     try {
       await registrarse(formData);
-      setSuccess(true);
-      setTimeout(() => {
-        navigate("/login");
-      }, 2000);
+      try {
+        await login({
+          username: formData.username,
+          password: formData.password
+        });
+        setSuccess(true);
+        setTimeout(() => {
+          navigate("/dashboard");
+        }, 2000);
+      } catch (loginError) {
+        setError("Cuenta creada pero error al iniciar sesión. Por favor, inicia sesión manualmente.");
+      }
     } catch (err) {
-      // No mostrar errores técnicos al usuario
       console.error("Error en registro:", err);
-      setError("Error al crear la cuenta. Por favor, intenta nuevamente.");
+      setError(err.message || "Error al crear la cuenta. Por favor, intenta nuevamente.");
     } finally {
       setLoading(false);
     }
@@ -53,7 +60,7 @@ const Register = () => {
           <div className="success-message">
             <h2>¡Registro exitoso!</h2>
             <p>Tu cuenta ha sido creada correctamente.</p>
-            <p>Serás redirigido al login en unos segundos...</p>
+            <p>Serás redirigido al dashboard en unos segundos...</p>
             <LoadingSpinner size="medium" text="" />
           </div>
         </div>

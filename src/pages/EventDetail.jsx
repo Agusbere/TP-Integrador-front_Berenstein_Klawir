@@ -10,7 +10,7 @@ import "../styles/EventDetail.css";
 const EventDetail = () => {
   const { id } = useParams();
   const navegador = useNavigate();
-  const { estaAutenticado } = useAuth();
+  const { isAuthenticated } = useAuth();
 
   const [evento, setEvento] = useState(null);
   const [cargando, setCargando] = useState(true);
@@ -37,7 +37,7 @@ const EventDetail = () => {
   }, [id]);
 
   const manejarInscripcion = async () => {
-    if (!estaAutenticado) {
+    if (!isAuthenticated) {
       navegador("/login");
       return;
     }
@@ -216,7 +216,7 @@ const EventDetail = () => {
                   <div className="alert alert-success">{exitoInscripcion}</div>
                 )}
 
-                {estaAutenticado ? (
+                {isAuthenticated ? (
                   <div className="enrollment-actions">
                     <button
                       onClick={manejarInscripcion}

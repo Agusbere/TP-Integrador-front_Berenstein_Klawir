@@ -23,58 +23,38 @@ const Navbar = () => {
         </Link>
 
         <div className="nav-menu">
-          <Link to="/" className="nav-link">
-            Inicio
-          </Link>
-          <Link to="/events" className="nav-link">
-            Eventos
-          </Link>
-
           {isAuthenticated ? (
-            <div className="nav-user-menu">
-              <Link to="/dashboard" className="nav-link">
-                Dashboard
+            <>
+              <Link to="/events" className="nav-link">
+                Eventos
               </Link>
-              <Link to="/create-event" className="nav-link">
-                Crear Evento
+              <Link to="/my-events" className="nav-link">
+                Mis Eventos
               </Link>
-              <Link to="/event-locations" className="nav-link">
-                Ubicaciones
+              <Link to="/profile" className="nav-link">
+                Perfil
               </Link>
-
-              <div className="user-dropdown">
-                <button className="user-button">
-                  <span className="user-avatar">
-                    {user?.first_name?.charAt(0)?.toUpperCase() || "U"}
-                  </span>
-                  <span className="user-name">
-                    {user?.first_name || "Usuario"}
-                  </span>
-                  <span className="dropdown-arrow">▼</span>
-                </button>
-
-                <div className="dropdown-content">
-                  <Link to="/profile" className="dropdown-item">
-                    Mi Perfil
-                  </Link>
-                  <button
-                    onClick={handleLogout}
-                    className="dropdown-item logout-btn"
-                  >
-                    Cerrar Sesión
-                  </button>
-                </div>
-              </div>
-            </div>
+              <button onClick={handleLogout} className="nav-link logout-btn">
+                Cerrar Sesión
+              </button>
+            </>
           ) : (
-            <div className="nav-auth">
-              <Link to="/login" className="nav-link">
-                Iniciar Sesión
+            <>
+              <Link to="/" className="nav-link">
+                Inicio
               </Link>
-              <Link to="/register" className="nav-link nav-link-primary">
-                Registrarse
+              <Link to="/events" className="nav-link">
+                Eventos
               </Link>
-            </div>
+              <div className="nav-auth">
+                <Link to="/login" className="nav-link">
+                  Iniciar Sesión
+                </Link>
+                <Link to="/register" className="nav-link nav-link-primary">
+                  Registrarse
+                </Link>
+              </div>
+            </>
           )}
         </div>
       </div>

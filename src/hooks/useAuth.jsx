@@ -42,15 +42,13 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  const register = async (userData) => {
+  const registrarse = async (userData) => {
     try {
       const response = await ServicioApi.registrarse(userData);
       return response;
     } catch (error) {
       console.error("Error en registro:", error);
-      throw new Error(
-        "Error al crear la cuenta. Por favor, intenta nuevamente."
-      );
+      throw error;
     }
   };
 
@@ -65,7 +63,7 @@ export const AuthProvider = ({ children }) => {
     token,
     loading,
     login,
-    register,
+    registrarse,
     logout,
     isAuthenticated: !!token,
   };
