@@ -1,11 +1,17 @@
 import { Link } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth.jsx";
 import { useState, useEffect } from "react";
+import ServicioApi from "../services/apiServices.jsx";
+import EventCard from "../components/EventCard.jsx";
+import LoadingSpinner from "../components/LoadingSpinner.jsx";
 import "../styles/Home.css";
 
 const Home = () => {
   const { isAuthenticated } = useAuth();
   const [currentSlide, setCurrentSlide] = useState(0);
+  const [eventosDestacados, setEventosDestacados] = useState([]);
+  const [cargandoEventos, setCargandoEventos] = useState(true);
+  const [errorEventos, setErrorEventos] = useState(null);
 
   const carouselImages = [
     {
@@ -45,6 +51,23 @@ const Home = () => {
 
     return () => clearInterval(interval);
   }, [carouselImages.length]);
+
+  useEffect(() => {
+    const obtenerEventosDestacados = async () => {
+      try {
+        setCargandoEventos(true);
+        const eventos = await ServicioApi.obtenerEventos({ limit: 10 });
+        setEventosDestacados(eventos);
+      } catch (err) {
+        setErrorEventos("Error al cargar eventos destacados");
+        console.error("Error obteniendo eventos destacados:", err);
+      } finally {
+        setCargandoEventos(false);
+      }
+    };
+
+    obtenerEventosDestacados();
+  }, []);
 
   const nextSlide = () => {
     setCurrentSlide((prev) => (prev + 1) % carouselImages.length);
@@ -157,6 +180,37 @@ const Home = () => {
             <div className="stat-item">
               <h3>50+</h3>
               <p>Ciudades</p>
+            </div>
+          </div>
+
+          <div className="featured-events-section">
+            <h2>Eventos Destacados</h2>
+            <p>Descubre los eventos más populares del momento</p>
+            
+            {cargandoEventos ? (
+              <div className="loading-container">
+                <LoadingSpinner size="medium" text="Cargando eventos destacados..." />
+              </div>
+            ) : errorEventos ? (
+              <div className="error-state">
+                <p>{errorEventos}</p>
+              </div>
+            ) : eventosDestacados.length > 0 ? (
+              <div className="featured-events-grid">
+                {eventosDestacados.slice(0, 6).map((evento) => (
+                  <EventCard key={evento.id} event={evento} />
+                ))}
+              </div>
+            ) : (
+              <div className="no-events-found">
+                <p>No hay eventos destacados en este momento.</p>
+              </div>
+            )}
+            
+            <div className="featured-events-actions">
+              <Link to="/events" className="btn btn-primary">
+                Ver Todos los Eventos
+              </Link>
             </div>
           </div>
 

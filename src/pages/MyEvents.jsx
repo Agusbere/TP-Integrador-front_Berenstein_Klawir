@@ -103,23 +103,7 @@ const MyEvents = () => {
         {eventos.length > 0 ? (
           <div className="events-grid">
             {eventos.map((evento) => (
-              <div key={evento.id} className="event-card-container">
-                <EventCard event={evento} />
-                <div className="event-actions">
-                  <Link
-                    to={`/edit-event/${evento.id}`}
-                    className="btn btn-secondary"
-                  >
-                    Editar
-                  </Link>
-                  <button
-                    onClick={() => eliminarEvento(evento.id)}
-                    className="btn btn-danger"
-                  >
-                    Eliminar
-                  </button>
-                </div>
-              </div>
+              <EventCard key={evento.id} event={evento} showActions={true} onEdit={() => window.location.href = `/edit-event/${evento.id}`} onDelete={() => eliminarEvento(evento.id)} />
             ))}
           </div>
         ) : (

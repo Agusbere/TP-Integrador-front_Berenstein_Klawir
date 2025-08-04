@@ -311,3 +311,55 @@
     font-size: 1.125rem;
   }
 }
+
+.auth-prompt {
+  text-align: center;
+  padding: 3rem 2rem;
+  margin-top: 3rem;
+  background: white;
+  border-radius: 15px;
+  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+}
+
+.auth-prompt h3 {
+  font-size: 1.5rem;
+  color: #333;
+  margin-bottom: 1rem;
+}
+
+.auth-prompt p {
+  color: #666;
+  margin-bottom: 2rem;
+  font-size: 1.1rem;
+}
+
+.auth-actions {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+}
+
+.auth-actions .btn {
+  min-width: 150px;
+}
+
+.event-card-actions {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 1rem;
+}
+
+.event-card-actions .btn {
+  flex: 1;
+  padding: 0.5rem 1rem;
+  font-size: 0.9rem;
+}
+
+.creator-notice {
+  text-align: center;
+  padding: 1rem;
+  background: #f3f4f6;
+  border-radius: 8px;
+  color: #6b7280;
+  font-style: italic;
+}

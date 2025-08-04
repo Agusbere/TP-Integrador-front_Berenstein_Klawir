@@ -2,7 +2,7 @@ import { Link } from "react-router-dom";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
 
-const EventCard = ({ event }) => {
+const EventCard = ({ event, showActions = false, onEdit, onDelete }) => {
   const formatTime = (dateString) => {
     try {
       return format(new Date(dateString), "HH:mm", { locale: es });
@@ -66,6 +66,16 @@ const EventCard = ({ event }) => {
         <Link to={`/events/${event.id}`} className="btn btn-primary btn-block">
           Ver Detalles
         </Link>
+        {showActions && (
+          <div className="event-card-actions">
+            <button onClick={onEdit} className="btn btn-secondary">
+              Editar
+            </button>
+            <button onClick={onDelete} className="btn btn-danger">
+              Eliminar
+            </button>
+          </div>
+        )}
       </div>
     </div>
   );

@@ -215,8 +215,9 @@ h6 {
     position: static;
     transform: none;
     gap: 1rem;
-    flex-wrap: wrap;
+    flex-wrap: nowrap;
     justify-content: center;
+    overflow-x: auto;
   }
 
   .nav-logo {
@@ -296,6 +297,12 @@ h6 {
   position: absolute;
   left: 50%;
   transform: translateX(-50%);
+  flex-wrap: nowrap;
+}
+
+.nav-menu > * {
+  margin: 0 1rem;
+  white-space: nowrap;
 }
 
 .nav-link {
@@ -427,7 +434,7 @@ h6 {
 }
 
 .logout-btn:hover {
-  background-color: rgba(255, 255, 255, 0.1);
+  background-color: #dc2626;
   color: white;
 }
 

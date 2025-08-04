@@ -71,6 +71,10 @@ class ServicioApi {
     return clienteApi.get("/event", { params: parametros });
   }
 
+  static async obtenerTodosLosEventos() {
+    return clienteApi.get("/event/all");
+  }
+
   static async obtenerMisEventos() {
     return clienteApi.get("/event/my-events");
   }
@@ -113,6 +117,18 @@ class ServicioApi {
 
   static async desinscribirseDeEvento(idEvento) {
     return clienteApi.delete(`/event/${idEvento}/enrollment`);
+  }
+
+  static async verificarInscripcionEvento(idEvento) {
+    try {
+      await clienteApi.get(`/event/${idEvento}/enrollment`);
+      return true;
+    } catch (error) {
+      if (error.response?.status === 404) {
+        return false;
+      }
+      throw error;
+    }
   }
 
   static async obtenerUbicacionesEventos() {

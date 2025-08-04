@@ -1,10 +1,13 @@
 import { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
 import ServicioApi from "../services/apiServices.jsx";
 import EventCard from "../components/EventCard.jsx";
 import LoadingSpinner from "../components/LoadingSpinner.jsx";
+import { useAuth } from "../hooks/useAuth.jsx";
 import "../styles/Events.css";
 
 const Events = () => {
+  const { isAuthenticated } = useAuth();
   const [eventos, setEventos] = useState([]);
   const [cargando, setCargando] = useState(true);
   const [error, setError] = useState(null);
@@ -15,9 +18,15 @@ const Events = () => {
     const obtenerEventos = async () => {
       try {
         setCargando(true);
-        const datosEventos = await ServicioApi.obtenerEventos();
-        setEventos(datosEventos);
-        setEventosFiltrados(datosEventos);
+        if (isAuthenticated) {
+          const datosEventos = await ServicioApi.obtenerTodosLosEventos();
+          setEventos(datosEventos);
+          setEventosFiltrados(datosEventos);
+        } else {
+          const datosEventos = await ServicioApi.obtenerEventos({ limit: 10 });
+          setEventos(datosEventos);
+          setEventosFiltrados(datosEventos);
+        }
       } catch (err) {
         setError("Error al cargar los eventos");
         console.error("Error obteniendo eventos:", err);
@@ -27,7 +36,7 @@ const Events = () => {
     };
 
     obtenerEventos();
-  }, []);
+  }, [isAuthenticated]);
 
   useEffect(() => {
     const filtrados = eventos.filter(
@@ -83,22 +92,24 @@ const Events = () => {
     <div className="events-page">
       <div className="container">
         <div className="events-header">
-          <h1>Todos los Eventos</h1>
-          <p>Descubre eventos increíbles cerca de ti</p>
+          <h1>{isAuthenticated ? "Todos los Eventos" : "Eventos Destacados"}</h1>
+          <p>{isAuthenticated ? "Explora todos los eventos disponibles en la plataforma" : "Descubre los eventos más populares del momento"}</p>
         </div>
 
-        <div className="events-filters">
-          <div className="search-box">
-            <input
-              type="text"
-              placeholder="Buscar eventos..."
-              value={terminoBusqueda}
-              onChange={manejarBusqueda}
-              className="search-input"
-            />
-            <span className="search-icon">🔍</span>
+        {isAuthenticated && (
+          <div className="events-filters">
+            <div className="search-box">
+              <input
+                type="text"
+                placeholder="Buscar eventos..."
+                value={terminoBusqueda}
+                onChange={manejarBusqueda}
+                className="search-input"
+              />
+              <span className="search-icon">🔍</span>
+            </div>
           </div>
-        </div>
+        )}
 
         <div className="events-results">
           <div className="results-info">
@@ -109,13 +120,29 @@ const Events = () => {
             </span>
           </div>
 
-          {eventosFiltrados.length > 0 ? (
-            <div className="events-grid">
-              {eventosFiltrados.map((evento) => (
-                <EventCard key={evento.id} event={evento} />
-              ))}
-            </div>
-          ) : (
+                     {eventosFiltrados.length > 0 ? (
+             <>
+               <div className="events-grid">
+                 {eventosFiltrados.map((evento) => (
+                   <EventCard key={evento.id} event={evento} />
+                 ))}
+               </div>
+               {!isAuthenticated && (
+                 <div className="auth-prompt">
+                   <h3>¿Quieres ver todos los eventos?</h3>
+                   <p>Regístrate o inicia sesión para acceder a todos los eventos disponibles</p>
+                   <div className="auth-actions">
+                     <Link to="/register" className="btn btn-primary">
+                       Registrarse
+                     </Link>
+                     <Link to="/login" className="btn btn-secondary">
+                       Iniciar Sesión
+                     </Link>
+                   </div>
+                 </div>
+               )}
+             </>
+           ) : (
             <div className="no-events-found">
               {terminoBusqueda ? (
                 <>

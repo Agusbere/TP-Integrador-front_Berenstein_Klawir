@@ -29,16 +29,19 @@ export const AuthProvider = ({ children }) => {
   const login = async (credentials) => {
     try {
       const response = await ServicioApi.iniciarSesion(credentials);
-      const { token: newToken, user: userData } = response;
+      const { token: newToken } = response;
 
       localStorage.setItem("token", newToken);
       setToken(newToken);
+      
+      // Obtener los datos del usuario después del login
+      const userData = await ServicioApi.obtenerPerfilUsuario();
       setUser(userData);
 
       return response;
     } catch (error) {
       console.error("Error en login:", error);
-      throw new Error("Error al iniciar sesión. Verifica tus credenciales.");
+      throw error;
     }
   };
 

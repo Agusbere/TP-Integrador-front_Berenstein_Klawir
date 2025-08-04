@@ -10,7 +10,7 @@ import "../styles/EventDetail.css";
 const EventDetail = () => {
   const { id } = useParams();
   const navegador = useNavigate();
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, user } = useAuth();
 
   const [evento, setEvento] = useState(null);
   const [cargando, setCargando] = useState(true);
@@ -18,6 +18,7 @@ const EventDetail = () => {
   const [error, setError] = useState(null);
   const [errorInscripcion, setErrorInscripcion] = useState("");
   const [exitoInscripcion, setExitoInscripcion] = useState("");
+  const [estaInscrito, setEstaInscrito] = useState(false);
 
   useEffect(() => {
     const obtenerEvento = async () => {
@@ -25,6 +26,17 @@ const EventDetail = () => {
         setCargando(true);
         const datosEvento = await ServicioApi.obtenerEventoPorId(id);
         setEvento(datosEvento);
+        
+        // Verificar si el usuario está inscrito en el evento
+        if (isAuthenticated) {
+          try {
+            const inscrito = await ServicioApi.verificarInscripcionEvento(id);
+            setEstaInscrito(inscrito);
+          } catch (err) {
+            console.error("Error verificando inscripción:", err);
+            setEstaInscrito(false);
+          }
+        }
       } catch (err) {
         setError("Error al cargar el evento");
         console.error("Error obteniendo evento:", err);
@@ -34,7 +46,7 @@ const EventDetail = () => {
     };
 
     obtenerEvento();
-  }, [id]);
+  }, [id, isAuthenticated]);
 
   const manejarInscripcion = async () => {
     if (!isAuthenticated) {
@@ -49,6 +61,7 @@ const EventDetail = () => {
     try {
       await ServicioApi.inscribirseEnEvento(id);
       setExitoInscripcion("¡Te has inscrito exitosamente al evento!");
+      setEstaInscrito(true);
     } catch (err) {
       setErrorInscripcion(err.message || "Error al inscribirse al evento");
     } finally {
@@ -64,6 +77,7 @@ const EventDetail = () => {
     try {
       await ServicioApi.desinscribirseDeEvento(id);
       setExitoInscripcion("Te has desinscrito del evento exitosamente");
+      setEstaInscrito(false);
     } catch (err) {
       setErrorInscripcion(err.message || "Error al desinscribirse del evento");
     } finally {
@@ -218,28 +232,35 @@ const EventDetail = () => {
 
                 {isAuthenticated ? (
                   <div className="enrollment-actions">
-                    <button
-                      onClick={manejarInscripcion}
-                      disabled={cargandoInscripcion}
-                      className="btn btn-primary btn-block"
-                    >
-                      {cargandoInscripcion ? (
-                        <LoadingSpinner size="small" text="" />
-                      ) : (
-                        "Inscribirse al Evento"
-                      )}
-                    </button>
-                    <button
-                      onClick={manejarDesinscripcion}
-                      disabled={cargandoInscripcion}
-                      className="btn btn-secondary btn-block"
-                    >
-                      {cargandoInscripcion ? (
-                        <LoadingSpinner size="small" text="" />
-                      ) : (
-                        "Desinscribirse"
-                      )}
-                    </button>
+                    {evento.creator_user?.id === user?.id ? (
+                      <div className="creator-notice">
+                        <p>No puedes inscribirte a tu propio evento</p>
+                      </div>
+                    ) : !estaInscrito ? (
+                      <button
+                        onClick={manejarInscripcion}
+                        disabled={cargandoInscripcion}
+                        className="btn btn-primary btn-block"
+                      >
+                        {cargandoInscripcion ? (
+                          <LoadingSpinner size="small" text="" />
+                        ) : (
+                          "Inscribirse al Evento"
+                        )}
+                      </button>
+                    ) : (
+                      <button
+                        onClick={manejarDesinscripcion}
+                        disabled={cargandoInscripcion}
+                        className="btn btn-secondary btn-block"
+                      >
+                        {cargandoInscripcion ? (
+                          <LoadingSpinner size="small" text="" />
+                        ) : (
+                          "Desinscribirse"
+                        )}
+                      </button>
+                    )}
                   </div>
                 ) : (
                   <div className="login-prompt">

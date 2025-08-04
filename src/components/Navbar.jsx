@@ -43,9 +43,6 @@ const Navbar = () => {
               <Link to="/" className="nav-link">
                 Inicio
               </Link>
-              <Link to="/events" className="nav-link">
-                Eventos
-              </Link>
               <div className="nav-auth">
                 <Link to="/login" className="nav-link">
                   Iniciar Sesión
