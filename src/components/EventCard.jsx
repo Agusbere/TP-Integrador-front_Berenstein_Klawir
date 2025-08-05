@@ -3,6 +3,9 @@ import { format } from "date-fns";
 import { es } from "date-fns/locale";
 
 const EventCard = ({ event, showActions = false, onEdit, onDelete }) => {
+  console.log("Datos del evento en EventCard:", event);
+  console.log("Ubicación recibida:", event.province_name, event.event_location?.name);
+
   const formatTime = (dateString) => {
     try {
       return format(new Date(dateString), "HH:mm", { locale: es });
@@ -38,13 +41,13 @@ const EventCard = ({ event, showActions = false, onEdit, onDelete }) => {
         <div className="event-details">
           <div className="event-detail-item">
             <span className="detail-text">
-              Ubicación: {event.event_location?.name || "Por confirmar"}
+              Ubicación: {event.province_name}, {event.event_location?.name || "Por confirmar"}
             </span>
           </div>
 
           <div className="event-detail-item">
             <span className="detail-text">
-              Hora: {formatTime(event.start_date)}
+              Hora: {formatTime(event.start_date)} Duración: {event.duration_in_minutes} min
             </span>
           </div>
 

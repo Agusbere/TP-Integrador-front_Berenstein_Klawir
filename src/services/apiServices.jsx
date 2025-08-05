@@ -119,9 +119,9 @@ class ServicioApi {
     return clienteApi.delete(`/event/${idEvento}/enrollment`);
   }
 
-  static async verificarInscripcionEvento(idEvento) {
+  static async verificarInscripcionEvento(idEvento, userId) {
     try {
-      await clienteApi.get(`/event/${idEvento}/enrollment`);
+      await clienteApi.get(`/event/${idEvento}/enrollment/${userId}`);
       return true;
     } catch (error) {
       if (error.response?.status === 404) {

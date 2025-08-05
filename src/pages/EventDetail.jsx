@@ -27,10 +27,9 @@ const EventDetail = () => {
         const datosEvento = await ServicioApi.obtenerEventoPorId(id);
         setEvento(datosEvento);
         
-        // Verificar si el usuario está inscrito en el evento
         if (isAuthenticated) {
           try {
-            const inscrito = await ServicioApi.verificarInscripcionEvento(id);
+            const inscrito = await ServicioApi.verificarInscripcionEvento(id, user.id);
             setEstaInscrito(inscrito);
           } catch (err) {
             console.error("Error verificando inscripción:", err);
@@ -149,8 +148,7 @@ const EventDetail = () => {
               <div className="meta-item">
                 <span className="meta-label">Hora:</span>
                 <span>
-                  {formatearHoraEvento(evento.start_date)} -{" "}
-                  {formatearHoraEvento(evento.end_date)}
+                  {formatearHoraEvento(evento.start_date)}
                 </span>
               </div>
               <div className="meta-item">

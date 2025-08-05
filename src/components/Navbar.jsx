@@ -2,7 +2,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth.jsx";
 
 const Navbar = () => {
-  const { user, isAuthenticated, logout } = useAuth();
+  const { isAuthenticated, logout } = useAuth();
   const navigate = useNavigate();
 
   const handleLogout = () => {
@@ -39,19 +39,14 @@ const Navbar = () => {
               </button>
             </>
           ) : (
-            <>
-              <Link to="/" className="nav-link">
-                Inicio
+            <div className="nav-auth" style={{ marginLeft: 'auto', display: 'flex', gap: '1rem' }}>
+              <Link to="/login" className="nav-link">
+                Iniciar Sesión
               </Link>
-              <div className="nav-auth">
-                <Link to="/login" className="nav-link">
-                  Iniciar Sesión
-                </Link>
-                <Link to="/register" className="nav-link nav-link-primary">
-                  Registrarse
-                </Link>
-              </div>
-            </>
+              <Link to="/register" className="nav-link nav-link-primary">
+                Registrarse
+              </Link>
+            </div>
           )}
         </div>
       </div>
