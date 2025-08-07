@@ -4,7 +4,7 @@ import { es } from "date-fns/locale";
 
 const EventCard = ({ event, showActions = false, onEdit, onDelete }) => {
   console.log("Datos del evento en EventCard:", event);
-  console.log("Ubicación recibida:", event.province_name, event.event_location?.name);
+  console.log("Ubicación recibida:", event.province_name, event.event_location_name);
 
   const formatTime = (dateString) => {
     try {
@@ -41,7 +41,7 @@ const EventCard = ({ event, showActions = false, onEdit, onDelete }) => {
         <div className="event-details">
           <div className="event-detail-item">
             <span className="detail-text">
-              Ubicación: {event.province_name}, {event.event_location?.name || "Por confirmar"}
+              Ubicación: {event.province_name}, {event.event_location_name}
             </span>
           </div>
 

@@ -110,7 +110,7 @@ const Register = () => {
           </div>
 
           <div className="form-group">
-            <label htmlFor="username">Usuario</label>
+            <label htmlFor="username">Email</label>
             <input
               type="text"
               id="username"
@@ -119,7 +119,7 @@ const Register = () => {
               onChange={handleChange}
               required
               className="form-input"
-              placeholder="Elige un nombre de usuario"
+              placeholder="Ingrese un email"
             />
           </div>
 

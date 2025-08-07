@@ -13,7 +13,7 @@ const Navbar = () => {
   return (
     <nav className="navbar">
       <div className="nav-container">
-        <Link to="/" className="nav-logo">
+        <Link to={isAuthenticated ? "/dashboard" : "/"} className="nav-logo">
           <img
             src="/src/assets/logo eventutti sin fondo.png"
             alt="Eventutti"
@@ -22,7 +22,7 @@ const Navbar = () => {
           <span className="logo-text">Eventutti</span>
         </Link>
 
-        <div className="nav-menu">
+        <div className="nav-menu" style={{ marginLeft: 'auto', display: 'flex', gap: '1rem' }}>
           {isAuthenticated ? (
             <>
               <Link to="/events" className="nav-link">
@@ -39,14 +39,14 @@ const Navbar = () => {
               </button>
             </>
           ) : (
-            <div className="nav-auth" style={{ marginLeft: 'auto', display: 'flex', gap: '1rem' }}>
+            <>
               <Link to="/login" className="nav-link">
                 Iniciar Sesión
               </Link>
               <Link to="/register" className="nav-link nav-link-primary">
                 Registrarse
               </Link>
-            </div>
+            </>
           )}
         </div>
       </div>

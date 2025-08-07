@@ -30,7 +30,7 @@ const EventDetail = () => {
         if (isAuthenticated) {
           try {
             const inscrito = await ServicioApi.verificarInscripcionEvento(id, user.id);
-            setEstaInscrito(inscrito);
+            setEstaInscrito(Boolean(inscrito));
           } catch (err) {
             console.error("Error verificando inscripción:", err);
             setEstaInscrito(false);
@@ -61,6 +61,7 @@ const EventDetail = () => {
       await ServicioApi.inscribirseEnEvento(id);
       setExitoInscripcion("¡Te has inscrito exitosamente al evento!");
       setEstaInscrito(true);
+      console.log("Estado después de inscribirse:", true);
     } catch (err) {
       setErrorInscripcion(err.message || "Error al inscribirse al evento");
     } finally {
@@ -75,8 +76,10 @@ const EventDetail = () => {
 
     try {
       await ServicioApi.desinscribirseDeEvento(id);
+      setExitoInscrito(false);
       setExitoInscripcion("Te has desinscrito del evento exitosamente");
       setEstaInscrito(false);
+      console.log("Estado después de desinscribirse:", false);
     } catch (err) {
       setErrorInscripcion(err.message || "Error al desinscribirse del evento");
     } finally {
@@ -154,7 +157,7 @@ const EventDetail = () => {
               <div className="meta-item">
                 <span className="meta-label">Ubicación:</span>
                 <span>
-                  {evento.event_location?.name || "Ubicación por confirmar"}
+                  {evento.province_name}, {evento.event_location_name || "Ubicación por confirmar"}
                 </span>
               </div>
             </div>

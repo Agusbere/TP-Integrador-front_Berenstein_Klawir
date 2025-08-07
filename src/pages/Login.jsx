@@ -50,7 +50,7 @@ const Login = () => {
           {error && <div className="error-alert">{error}</div>}
 
           <div className="form-group">
-            <label htmlFor="username">Usuario</label>
+            <label htmlFor="username">Email</label>
             <input
               type="text"
               id="username"
@@ -59,7 +59,7 @@ const Login = () => {
               onChange={handleChange}
               required
               className="form-input"
-              placeholder="Ingresa tu nombre de usuario"
+              placeholder="Ingresa tu email"
             />
           </div>
 
