@@ -7,8 +7,8 @@ import LoadingSpinner from "../components/LoadingSpinner.jsx";
 import "../styles/Dashboard.css";
 
 const Dashboard = () => {
-  const { usuario } = useAuth();
-  const [eventosUsuario, setEventosUsuario] = useState([]);
+  const { user } = useAuth();
+  const [eventosDestacados, setEventosDestacados] = useState([]);
   const [todosLosEventos, setTodosLosEventos] = useState([]);
   const [cargando, setCargando] = useState(true);
   const [error, setError] = useState(null);
@@ -17,10 +17,10 @@ const Dashboard = () => {
     const obtenerDatosDashboard = async () => {
       try {
         setCargando(true);
-        const eventos = await ServicioApi.obtenerEventos();
+        const eventos = await ServicioApi.obtenerTodosLosEventos();
         setTodosLosEventos(eventos);
-
-        setEventosUsuario(eventos.slice(0, 3));
+        setEventosDestacados(eventos.slice(0, 3));
+        console.log("Datos del usuario:", user);
       } catch (err) {
         setError("Error al cargar el dashboard");
         console.error("Error obteniendo datos del dashboard:", err);
@@ -28,9 +28,8 @@ const Dashboard = () => {
         setCargando(false);
       }
     };
-
     obtenerDatosDashboard();
-  }, []);
+  }, [user]);
 
   if (cargando) {
     return (
@@ -46,7 +45,7 @@ const Dashboard = () => {
     <div className="dashboard-page">
       <div className="container">
         <div className="dashboard-header">
-          <h1>¡Hola, {usuario?.first_name || "Usuario"}!</h1>
+          <h1>¡Hola, {user?.first_name || "Usuario"}!</h1>
           <p>Bienvenido a tu dashboard personal</p>
         </div>
 
@@ -122,9 +121,9 @@ const Dashboard = () => {
                 </Link>
               </div>
 
-              {eventosUsuario.length > 0 ? (
+              {eventosDestacados.length > 0 ? (
                 <div className="events-grid">
-                  {eventosUsuario.map((evento) => (
+                  {eventosDestacados.map((evento) => (
                     <EventCard key={evento.id} event={evento} />
                   ))}
                 </div>

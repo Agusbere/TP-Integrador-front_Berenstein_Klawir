@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import {
   BrowserRouter as Router,
   Routes,
@@ -39,7 +40,18 @@ const PublicRoute = ({ children }) => {
   return !isAuthenticated ? children : <Navigate to="/dashboard" />;
 };
 
+
+
 const AppRouter = () => {
+  const { isAuthenticated, loading } = useAuth();
+  const navigate = window.location.pathname;
+
+  useEffect(() => {
+    if (!loading && isAuthenticated && navigate === "/") {
+      window.location.replace("/dashboard");
+    }
+  }, [isAuthenticated, loading, navigate]);
+
   return (
     <Router>
       <div className="app">
