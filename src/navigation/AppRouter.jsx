@@ -12,6 +12,7 @@ import Register from "../pages/Register.jsx";
 import Events from "../pages/Events.jsx";
 import EventDetail from "../pages/EventDetail.jsx";
 import CreateEvent from "../pages/CreateEvent.jsx";
+import EditEvent from "../pages/EditEvent.jsx";
 import Profile from "../pages/Profile.jsx";
 import EventLocations from "../pages/EventLocations.jsx";
 import Dashboard from "../pages/Dashboard.jsx";
@@ -79,6 +80,14 @@ const AppRouter = () => {
               element={
                 <ProtectedRoute>
                   <CreateEvent />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/edit-event/:id"
+              element={
+                <ProtectedRoute>
+                  <EditEvent />
                 </ProtectedRoute>
               }
             />

@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import ServicioApi from "../services/apiServices.jsx";
 import { useAuth } from "../hooks/useAuth.jsx";
 import EventCard from "../components/EventCard.jsx";
@@ -7,7 +7,8 @@ import LoadingSpinner from "../components/LoadingSpinner.jsx";
 import "../styles/Events.css";
 
 const MyEvents = () => {
-  const { user, isAuthenticated } = useAuth();
+  const { isAuthenticated } = useAuth();
+  const navigate = useNavigate();
   const [eventos, setEventos] = useState([]);
   const [cargando, setCargando] = useState(true);
   const [error, setError] = useState(null);
@@ -103,7 +104,7 @@ const MyEvents = () => {
         {eventos.length > 0 ? (
           <div className="events-grid">
             {eventos.map((evento) => (
-              <EventCard key={evento.id} event={evento} showActions={true} onEdit={() => window.location.href = `/edit-event/${evento.id}`} onDelete={() => eliminarEvento(evento.id)} />
+              <EventCard key={evento.id} event={evento} showActions={true} onEdit={() => navigate(`/edit-event/${evento.id}`)} onDelete={() => eliminarEvento(evento.id)} />
             ))}
           </div>
         ) : (

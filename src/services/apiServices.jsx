@@ -132,7 +132,7 @@ class ServicioApi {
   }
 
   static async obtenerUbicacionesEventos() {
-    return clienteApi.get("/event-location");
+    return clienteApi.get("/event-location/all");
   }
 
   static async obtenerUbicacionEventoPorId(id) {

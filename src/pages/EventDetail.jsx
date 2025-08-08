@@ -62,6 +62,7 @@ const EventDetail = () => {
           const inscrito = await ServicioApi.verificarInscripcionEvento(id, user.id);
           setEstaInscrito(Boolean(inscrito));
         } catch (err) {
+          console.error("Error verificando inscripción:", err);
           setEstaInscrito(true);
         }
     } catch (err) {
@@ -83,6 +84,7 @@ const EventDetail = () => {
           const inscrito = await ServicioApi.verificarInscripcionEvento(id, user.id);
           setEstaInscrito(Boolean(inscrito));
         } catch (err) {
+          console.error("Error verificando desinscripción:", err);
           setEstaInscrito(false);
         }
     } catch (err) {

@@ -1,17 +1,17 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import ServicioApi from "../services/apiServices.jsx";
 import LoadingSpinner from "../components/LoadingSpinner.jsx";
 import "../styles/CreateEvent.css";
 
-const CrearEvento = () => {
+const EditEvent = () => {
+  const { id } = useParams();
   const navegador = useNavigate();
-  const [ubicacionesEventos, setUbicacionesEventos] = useState([]);
-  const [cargando, setCargando] = useState(false);
-  const [cargandoUbicaciones, setCargandoUbicaciones] = useState(true);
+  const [cargando, setCargando] = useState(true);
   const [error, setError] = useState("");
   const [exito, setExito] = useState(false);
-
+  const [ubicacionesEventos, setUbicacionesEventos] = useState([]);
+  const [categoriasEventos, setCategoriasEventos] = useState([]);
   const [datosFormulario, setDatosFormulario] = useState({
     name: "",
     description: "",
@@ -24,32 +24,34 @@ const CrearEvento = () => {
     id_event_location: "",
   });
 
-  const [categoriasEventos, setCategoriasEventos] = useState([]);
-
   useEffect(() => {
-    const obtenerUbicacionesEventos = async () => {
+    const cargarDatos = async () => {
       try {
+        setCargando(true);
+        const evento = await ServicioApi.obtenerEventoPorId(id);
+        setDatosFormulario({
+          name: evento.name || "",
+          description: evento.description || "",
+          start_date: evento.start_date ? evento.start_date.slice(0, 16) : "",
+          end_date: evento.end_date ? evento.end_date.slice(0, 16) : "",
+          max_assistance: evento.max_assistance || "",
+          price: evento.price || "",
+          duration_in_minutes: evento.duration_in_minutes || "",
+          id_event_category: evento.id_event_category || "",
+          id_event_location: evento.id_event_location || "",
+        });
         const ubicaciones = await ServicioApi.obtenerUbicacionesEventos();
         setUbicacionesEventos(ubicaciones);
-      } catch (err) {
-        console.error("Error obteniendo ubicaciones de eventos:", err);
-      } finally {
-        setCargandoUbicaciones(false);
-      }
-    };
-
-    const obtenerCategorias = async () => {
-      try {
         const categorias = await ServicioApi.obtenerCategoriasEventos();
         setCategoriasEventos(categorias);
       } catch (err) {
-        console.error("Error obteniendo categorías de eventos:", err);
+        setError("Error al cargar datos del evento:", err);
+      } finally {
+        setCargando(false);
       }
     };
-
-    obtenerUbicacionesEventos();
-    obtenerCategorias();
-  }, []);
+    cargarDatos();
+  }, [id]);
 
   const manejarCambio = (e) => {
     const { name, value } = e.target;
@@ -64,7 +66,6 @@ const CrearEvento = () => {
     e.preventDefault();
     setCargando(true);
     setError("");
-
     try {
       if (
         new Date(datosFormulario.end_date) <=
@@ -74,42 +75,43 @@ const CrearEvento = () => {
           "La fecha de fin debe ser posterior a la fecha de inicio"
         );
       }
-
       if (parseInt(datosFormulario.max_assistance) <= 0) {
         throw new Error("La capacidad máxima debe ser mayor a 0");
       }
-
       if (parseInt(datosFormulario.duration_in_minutes) <= 0) {
         throw new Error("La duración debe ser mayor a 0 minutos");
       }
-
+      if (!datosFormulario.price || parseFloat(datosFormulario.price) < 0) {
+        throw new Error("El precio es obligatorio y debe ser mayor o igual a 0");
+      }
       const datosEvento = {
-        ...datosFormulario,
+        name: datosFormulario.name,
+        description: datosFormulario.description,
+        start_date: datosFormulario.start_date,
+        end_date: datosFormulario.end_date,
         max_assistance: parseInt(datosFormulario.max_assistance),
+        price: parseFloat(datosFormulario.price),
         duration_in_minutes: parseInt(datosFormulario.duration_in_minutes),
         id_event_category: parseInt(datosFormulario.id_event_category),
         id_event_location: parseInt(datosFormulario.id_event_location),
-        price: datosFormulario.price ? parseFloat(datosFormulario.price) : null,
       };
-
-      const nuevoEvento = await ServicioApi.crearEvento(datosEvento);
+      await ServicioApi.actualizarEvento(id, datosEvento);
       setExito(true);
-
       setTimeout(() => {
-        navegador(`/events/${nuevoEvento.id}`);
+        navegador(`/events/${id}`);
       }, 2000);
     } catch (err) {
-      setError(err.message || "Error al crear el evento");
+      setError(err.message || "Error al actualizar el evento");
     } finally {
       setCargando(false);
     }
   };
 
-  if (cargandoUbicaciones) {
+  if (cargando) {
     return (
       <div className="create-event-page">
         <div className="container">
-          <LoadingSpinner size="large" text="Cargando formulario..." />
+          <LoadingSpinner size="large" text="Cargando datos..." />
         </div>
       </div>
     );
@@ -120,11 +122,8 @@ const CrearEvento = () => {
       <div className="create-event-page">
         <div className="container">
           <div className="success-card">
-            <h2>¡Evento creado exitosamente!</h2>
-            <p>
-              Tu evento ha sido publicado y ya está disponible para
-              inscripciones.
-            </p>
+            <h2>¡Evento actualizado exitosamente!</h2>
+            <p>Los cambios se guardaron correctamente.</p>
             <LoadingSpinner size="medium" text="Redirigiendo..." />
           </div>
         </div>
@@ -136,16 +135,13 @@ const CrearEvento = () => {
     <div className="create-event-page">
       <div className="container">
         <div className="create-event-header">
-          <h1>Crear Nuevo Evento</h1>
-          <p>Comparte tu evento con la comunidad</p>
+          <h1>Editar Evento</h1>
+          <p>Modificá los datos de tu evento</p>
         </div>
-
         <form onSubmit={manejarEnvio} className="create-event-form">
           {error && <div className="alert alert-error">{error}</div>}
-
           <div className="form-section">
             <h3>Información Básica</h3>
-
             <div className="form-group">
               <label htmlFor="name">Nombre del Evento *</label>
               <input
@@ -159,7 +155,6 @@ const CrearEvento = () => {
                 placeholder="Ej: Concierto de Rock en Vivo"
               />
             </div>
-
             <div className="form-group">
               <label htmlFor="description">Descripción *</label>
               <textarea
@@ -170,10 +165,9 @@ const CrearEvento = () => {
                 required
                 className="form-textarea"
                 rows="4"
-                placeholder="Describe tu evento, qué pueden esperar los asistentes..."
+                placeholder="Describe tu evento..."
               />
             </div>
-
             <div className="form-row">
               <div className="form-group">
                 <label htmlFor="id_event_category">Categoría *</label>
@@ -193,7 +187,6 @@ const CrearEvento = () => {
                   ))}
                 </select>
               </div>
-
               <div className="form-group">
                 <label htmlFor="id_event_location">Ubicación *</label>
                 <select
@@ -214,10 +207,8 @@ const CrearEvento = () => {
               </div>
             </div>
           </div>
-
           <div className="form-section">
             <h3>Fecha y Hora</h3>
-
             <div className="form-row">
               <div className="form-group">
                 <label htmlFor="start_date">Fecha y Hora de Inicio *</label>
@@ -231,7 +222,6 @@ const CrearEvento = () => {
                   className="form-input"
                 />
               </div>
-
               <div className="form-group">
                 <label htmlFor="end_date">Fecha y Hora de Fin *</label>
                 <input
@@ -245,7 +235,6 @@ const CrearEvento = () => {
                 />
               </div>
             </div>
-
             <div className="form-group">
               <label htmlFor="duration_in_minutes">Duración (minutos) *</label>
               <input
@@ -261,10 +250,8 @@ const CrearEvento = () => {
               />
             </div>
           </div>
-
           <div className="form-section">
             <h3>Capacidad y Precio</h3>
-
             <div className="form-row">
               <div className="form-group">
                 <label htmlFor="max_assistance">Capacidad Máxima *</label>
@@ -280,7 +267,6 @@ const CrearEvento = () => {
                   placeholder="Ej: 100"
                 />
               </div>
-
               <div className="form-group">
                 <label htmlFor="price">Precio *</label>
                 <input
@@ -298,7 +284,6 @@ const CrearEvento = () => {
               </div>
             </div>
           </div>
-
           <div className="form-actions">
             <button
               type="button"
@@ -315,7 +300,7 @@ const CrearEvento = () => {
               {cargando ? (
                 <LoadingSpinner size="small" text="" />
               ) : (
-                "Crear Evento"
+                "Guardar Cambios"
               )}
             </button>
           </div>
@@ -325,4 +310,4 @@ const CrearEvento = () => {
   );
 };
 
-export default CrearEvento;
+export default EditEvent;
