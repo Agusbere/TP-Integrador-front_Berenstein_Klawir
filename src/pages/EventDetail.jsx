@@ -27,12 +27,11 @@ const EventDetail = () => {
         const datosEvento = await ServicioApi.obtenerEventoPorId(id);
         setEvento(datosEvento);
         
-        if (isAuthenticated) {
+        if (isAuthenticated && user && user.id) {
           try {
             const inscrito = await ServicioApi.verificarInscripcionEvento(id, user.id);
             setEstaInscrito(Boolean(inscrito));
           } catch (err) {
-            console.error("Error verificando inscripción:", err);
             setEstaInscrito(false);
           }
         }
@@ -60,8 +59,12 @@ const EventDetail = () => {
     try {
       await ServicioApi.inscribirseEnEvento(id);
       setExitoInscripcion("¡Te has inscrito exitosamente al evento!");
-      setEstaInscrito(true);
-      console.log("Estado después de inscribirse:", true);
+        try {
+          const inscrito = await ServicioApi.verificarInscripcionEvento(id, user.id);
+          setEstaInscrito(Boolean(inscrito));
+        } catch (err) {
+          setEstaInscrito(true);
+        }
     } catch (err) {
       setErrorInscripcion(err.message || "Error al inscribirse al evento");
     } finally {
@@ -76,10 +79,13 @@ const EventDetail = () => {
 
     try {
       await ServicioApi.desinscribirseDeEvento(id);
-      setExitoInscrito(false);
-      setExitoInscripcion("Te has desinscrito del evento exitosamente");
-      setEstaInscrito(false);
-      console.log("Estado después de desinscribirse:", false);
+        setExitoInscripcion("Te has desinscrito del evento exitosamente");
+        try {
+          const inscrito = await ServicioApi.verificarInscripcionEvento(id, user.id);
+          setEstaInscrito(Boolean(inscrito));
+        } catch (err) {
+          setEstaInscrito(false);
+        }
     } catch (err) {
       setErrorInscripcion(err.message || "Error al desinscribirse del evento");
     } finally {
@@ -140,7 +146,7 @@ const EventDetail = () => {
         <div className="event-detail">
           <div className="event-header">
             <div className="event-category-badge">
-              {evento.event_category?.name || "Sin categoría"}
+              {evento.event_category_name || "Sin categoría"}
             </div>
             <h1 className="event-title">{evento.name}</h1>
             <div className="event-meta">
@@ -237,7 +243,7 @@ const EventDetail = () => {
                       <div className="creator-notice">
                         <p>No puedes inscribirte a tu propio evento</p>
                       </div>
-                    ) : !estaInscrito ? (
+                    ) : estaInscrito === false ? (
                       <button
                         onClick={manejarInscripcion}
                         disabled={cargandoInscripcion}

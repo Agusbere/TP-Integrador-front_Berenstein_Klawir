@@ -3,8 +3,6 @@ import { format } from "date-fns";
 import { es } from "date-fns/locale";
 
 const EventCard = ({ event, showActions = false, onEdit, onDelete }) => {
-  console.log("Datos del evento en EventCard:", event);
-  console.log("Ubicación recibida:", event.province_name, event.event_location_name);
 
   const formatTime = (dateString) => {
     try {
@@ -26,7 +24,7 @@ const EventCard = ({ event, showActions = false, onEdit, onDelete }) => {
           </span>
         </div>
         <div className="event-category">
-          {event.event_category?.name || "Sin categoría"}
+          {event.event_category_name || "Sin categoría"}
         </div>
       </div>
 

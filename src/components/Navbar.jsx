@@ -22,7 +22,7 @@ const Navbar = () => {
           <span className="logo-text">Eventutti</span>
         </Link>
 
-        <div className="nav-menu" style={{ marginLeft: 'auto', display: 'flex', gap: '1rem' }}>
+  <div className="nav-menu">
           {isAuthenticated ? (
             <>
               <Link to="/events" className="nav-link">
