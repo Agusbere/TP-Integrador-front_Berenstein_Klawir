@@ -20,7 +20,6 @@ const Dashboard = () => {
         const eventos = await ServicioApi.obtenerTodosLosEventos();
         setTodosLosEventos(eventos);
         setEventosDestacados(eventos.slice(0, 3));
-        console.log("Datos del usuario:", user);
       } catch (err) {
         setError("Error al cargar el dashboard");
         console.error("Error obteniendo datos del dashboard:", err);
