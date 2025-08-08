@@ -26,12 +26,12 @@ const EventDetail = () => {
         setCargando(true);
         const datosEvento = await ServicioApi.obtenerEventoPorId(id);
         setEvento(datosEvento);
-        
         if (isAuthenticated && user && user.id) {
           try {
             const inscrito = await ServicioApi.verificarInscripcionEvento(id, user.id);
             setEstaInscrito(Boolean(inscrito));
           } catch (err) {
+            console.error("Error verificando inscripción:", err);
             setEstaInscrito(false);
           }
         }
@@ -42,9 +42,8 @@ const EventDetail = () => {
         setCargando(false);
       }
     };
-
     obtenerEvento();
-  }, [id, isAuthenticated]);
+  }, [id, isAuthenticated, user?.id]);
 
   const manejarInscripcion = async () => {
     if (!isAuthenticated) {
@@ -243,7 +242,7 @@ const EventDetail = () => {
                       <div className="creator-notice">
                         <p>No puedes inscribirte a tu propio evento</p>
                       </div>
-                    ) : estaInscrito === false ? (
+                    ) : estaInscrito ? (
                       <button
                         onClick={manejarInscripcion}
                         disabled={cargandoInscripcion}

@@ -33,8 +33,6 @@ export const AuthProvider = ({ children }) => {
 
       localStorage.setItem("token", newToken);
       setToken(newToken);
-      
-      // Obtener los datos del usuario después del login
       const userData = await ServicioApi.obtenerPerfilUsuario();
       setUser(userData);
 
